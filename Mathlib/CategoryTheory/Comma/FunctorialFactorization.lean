@@ -11,7 +11,6 @@ import Mathlib.CategoryTheory.Category.Basic
 
 import Mathlib.CategoryTheory.Comma.Arrow
 import Mathlib.CategoryTheory.Comma.Basic
-import Mathlib.CategoryTheory.Comma.CardinalArrow
 
 /-!
 # Functorial Factorization Systems
