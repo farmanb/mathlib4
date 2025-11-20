@@ -3,7 +3,6 @@ Copyright (c) 2025 Blake Farman. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Blake Farman
 -/
-
 import Mathlib.CategoryTheory.Preradical.Basic
 import Mathlib.CategoryTheory.Preradical.Hom
 
@@ -30,36 +29,39 @@ universe u v
 variable {C : Type u} [Category.{v} C] [Abelian C]
 
 namespace Preradical
+
+/-- The functor sending `X` to the cokernel of the structure map `r.ι X`. -/
 noncomputable
 def cokernel_of (r : Preradical C) : C ⥤ C where
   obj := fun X => cokernel (r.ι X)
-  map := fun f => cokernel.map (r.ι _) (r.ι _) (r.map f) f (Eq.symm (ι_naturality r f))
-  map_id := by
-    intros; apply coequalizer.hom_ext; simp
-  map_comp := by
-    intros; apply coequalizer.hom_ext; simp
+  map := fun {X Y} f => cokernel.map (r.ι X) (r.ι Y) (r.map f) f (Eq.symm (ι_naturality r f))
+  map_id := fun X => coequalizer.hom_ext (by simp)
+  map_comp := fun {X Y Z} f g => coequalizer.hom_ext (by simp)
 
 noncomputable
 def coker (r : Preradical C) (X : C) := (cokernel_of r).obj X
 
 noncomputable
 def coker_map (r : Preradical C) {X Y : C} (f : X ⟶ Y) : r.coker X ⟶ r.coker Y :=
-(cokernel_of r).map f
+  (cokernel_of r).map f
 
 @[simp]
 lemma coker_eq (r : Preradical C) (X : C) : r.coker X = (cokernel_of r).obj X := rfl
 
 @[simp]
 lemma coker_map_eq (r : Preradical C) {X Y : C} (f : X ⟶ Y) :
-r.coker_map f = (cokernel_of r).map f := rfl
+    r.coker_map f = (cokernel_of r).map f :=
+  rfl
 
 @[simp]
 lemma coker_map_id (r : Preradical C) (X : C) :
-r.coker_map (𝟙 X) = 𝟙 (r.coker X) := (cokernel_of r).map_id X
+    r.coker_map (𝟙 X) = 𝟙 (r.coker X) :=
+  (cokernel_of r).map_id X
 
 @[simp]
 lemma coker_map_comp (r : Preradical C) {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) :
-r.coker_map (f ≫ g) = (r.coker_map f) ≫ (r.coker_map g) := (cokernel_of r).map_comp f g
+    r.coker_map (f ≫ g) = (r.coker_map f) ≫ (r.coker_map g) :=
+  (cokernel_of r).map_comp f g
 
 noncomputable
 def π (r : Preradical C) (X : C) : X ⟶ r.coker X := cokernel.π (r.ι X)
@@ -70,16 +72,11 @@ instance (r : Preradical C) (X : C) : Epi (r.π X) := by
 
 noncomputable
 def coker_η (r : Preradical C) : 𝟭 C ⟶ cokernel_of r where
-  app := fun X => r.π X --fun X => cokernel.π (r.ι X)
-  naturality := by
-    intro X Y f
-    simp
-    let f' := cokernel.map (r.ι _) (r.ι _) (r.map f) f (Eq.symm (ι_naturality r f))
-    change f ≫ cokernel.π (r.ι Y) = cokernel.π (r.ι X) ≫ f'
-    exact
-      Eq.symm
-        (cokernel.π_desc (r.ι X) (f ≫ cokernel.π (r.ι Y))
-          (cokernel.map._proof_1 (r.ι X) (r.ι Y) (r.map f) f (Eq.symm (ι_naturality r f))))
+  app := fun X => r.π X
+  naturality := fun X Y f =>
+    Eq.symm
+    (cokernel.π_desc (r.ι X) (f ≫ cokernel.π (r.ι Y))
+    (cokernel.map._proof_1 (r.ι X) (r.ι Y) (r.map f) f (Eq.symm (ι_naturality r f))))
 
 instance (r : Preradical C) (X : C) : Epi (r.coker_η.app X) := by
   change Epi (r.π X)
@@ -113,10 +110,10 @@ r.toKernel_π X ≫ kernel.ι (r.π X) = r.ι X := kernel.lift_ι (r.π X) (r.ι
 noncomputable
 def fromKernel_π (r : Preradical C) (X : C) : kernel (r.π X) ⟶ r X :=
   (KernelFork.IsLimit.lift'
-  (Abelian.monoIsKernelOfCokernel
-    (CokernelCofork.ofπ (r.π X) (ι_comp_π r X))
-    ((cokernelIsCokernel (r.ι X))))
-  (kernel.ι (r.π X)) (kernel.condition (r.π X))).1
+    (Abelian.monoIsKernelOfCokernel
+      (CokernelCofork.ofπ (r.π X) (ι_comp_π r X))
+      ((cokernelIsCokernel (r.ι X))))
+    (kernel.ι (r.π X)) (kernel.condition (r.π X))).1
 
 @[simp, reassoc]
 lemma fromKernel_π_comp (r : Preradical C) (X : C) :
@@ -139,9 +136,9 @@ r.fromKernel_π X ≫ r.toKernel_π X = 𝟙 (kernel (r.π X)) := by
 
 /-- For all `X : C`, `r.toKernel_π X : r X ⟶ kernel (r.π X)` is an isomorphism. -/
 instance (r : Preradical C) (X : C) : IsIso (r.toKernel_π X) :=
-⟨r.fromKernel_π X, ⟨toKernel_π_comp_fromKernel_π_id _ _, fromKernel_π_comp_toKernel_π_id _ _⟩⟩
+  ⟨r.fromKernel_π X, ⟨toKernel_π_comp_fromKernel_π_id _ _, fromKernel_π_comp_toKernel_π_id _ _⟩⟩
 
-/-- The expected isomorphism between the `kernel (r.π X)` and `r X`. -/
+/-- The expected isomorphism between `r X ≅ kernel (r.π X)`. -/
 noncomputable
 def kernelIso_π (r : Preradical C) (X : C) : r X ≅ kernel (r.π X) :=
   {
@@ -153,6 +150,6 @@ def kernelIso_π (r : Preradical C) (X : C) : r X ≅ kernel (r.π X) :=
 
 @[simp, reassoc]
 lemma kernelIso_π_hom_ι (r : Preradical C) (X : C) :
-  (kernelIso_π r X).hom ≫ kernel.ι (r.π X) = r.ι X := by simp[kernelIso_π]
+  (kernelIso_π r X).hom ≫ kernel.ι (r.π X) = r.ι X := by simp [kernelIso_π]
 
 end Preradical

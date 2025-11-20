@@ -3,7 +3,6 @@ Copyright (c) 2025 Blake Farman. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Blake Farman
 -/
-
 import Mathlib.CategoryTheory.Preradical.Basic
 import Mathlib.CategoryTheory.Preradical.Hom
 import Mathlib.CategoryTheory.Preradical.CokernelConstruction
@@ -44,52 +43,59 @@ variable {C : Type u} [Category.{v} C] [Abelian C]
 
 namespace Preradical
 
+/-- The object used to define the colon preradical `r : s` at an object `X`,
+given by the pullback of `r.π X` along `s.ι (r.coker X)`. -/
 noncomputable
 def colon_obj (r s : Preradical C) (X : C) : C :=
   pullback (r.π X) (s.ι (r.coker X))
 
+/-- The first projection from the colon object `colon_obj r s X` to `X`. -/
 noncomputable
 def colon_fst (r s : Preradical C) (X : C) : colon_obj r s X ⟶ X :=
-pullback.fst (r.π X) (s.ι (r.coker X))
+  pullback.fst (r.π X) (s.ι (r.coker X))
 
+/-- The second projection from the colon object `colon_obj r s X` to `s (r.coker X)`. -/
 noncomputable
 def colon_snd (r s : Preradical C) (X : C) : colon_obj r s X ⟶ s (r.coker X) :=
-pullback.snd (r.π X) (s.ι (r.coker X))
+  pullback.snd (r.π X) (s.ι (r.coker X))
 
 noncomputable
-instance (r s : Preradical C) (X : C) : Mono (colon_fst r s X) :=
+instance (r s : Preradical C) (X : C) : Mono (r.colon_fst s X) :=
   pullback.fst_of_mono
 
-instance colon_snd_epi (r s : Preradical C) (X : C) : Epi (colon_snd r s X) :=
+instance colon_snd_epi (r s : Preradical C) (X : C) : Epi (r.colon_snd s X) :=
   Abelian.epi_pullback_of_epi_f (r.π X) (s.ι (r.coker X))
 
 @[simp, reassoc]
 lemma colon.condition {r s : Preradical C} {X : C} :
-colon_fst r s X≫ r.π X = colon_snd r s X ≫ s.ι (r.coker X) := pullback.condition
+    r.colon_fst s X ≫ r.π X = r.colon_snd s X ≫ s.ι (r.coker X) :=
+  pullback.condition
 
 @[simp]
 lemma ι_comp_f_comp_π (r : Preradical C) {X Y : C} (f : X ⟶ Y) :
-r.ι X ≫ (f ≫ r.π Y) = 0 := by
-  rw[π_naturality,← Category.assoc,ι_comp_π,zero_comp]
+    r.ι X ≫ (f ≫ r.π Y) = 0 := by
+  rw [π_naturality, ← Category.assoc, ι_comp_π, zero_comp]
 
 @[simp]
 lemma colon_map_condition (r s : Preradical C) {X Y : C} (f : X ⟶ Y) :
-  (colon_fst r s X ≫ f) ≫ (r.π Y)
-  = (colon_snd r s X≫ s.map (r.coker_map f)) ≫ s.ι (r.coker Y) := calc
-    (colon_fst r s X≫ f) ≫ r.π Y = colon_fst r s X ≫ r.π X ≫ (r.coker_map f) := by
-      rw [Category.assoc,π_naturality]
-    _= colon_snd r s X ≫ s.ι (r.coker X) ≫ (r.coker_map f) := by
-      rw[← Category.assoc, colon.condition,Category.assoc]
-    _= (colon_snd r s X ≫ s.map (r.coker_map f)) ≫ s.ι (r.coker Y) := by
-      rw[← ι_naturality, Category.assoc]
+    (r.colon_fst s X ≫ f) ≫ (r.π Y) =
+    (r.colon_snd s X ≫ s.map (r.coker_map f)) ≫ s.ι (r.coker Y) := calc
+  _ = r.colon_fst s X ≫ r.π X ≫ (r.coker_map f) := by
+      rw [Category.assoc, π_naturality]
+  _ = r.colon_snd s X ≫ s.ι (r.coker X) ≫ (r.coker_map f) := by
+      rw [← Category.assoc, colon.condition, Category.assoc]
+  _ = (r.colon_snd s X ≫ s.map (r.coker_map f)) ≫ s.ι (r.coker Y) := by
+      rw [← ι_naturality, Category.assoc]
 
 @[simp, reassoc]
 lemma colon_map_id (r s : Preradical C) (X : C) :
-  pullback.map (r.π X) (s.ι (r.coker X))
-    (r.π X) (s.ι (r.coker X))
-    (𝟙 X) (𝟙 (s (r.coker X))) (𝟙 (r.coker X))
-    (by simp) (by simp) = 𝟙 (colon_obj r s X) := pullback.map_id
+    pullback.map (r.π X) (s.ι (r.coker X))
+      (r.π X) (s.ι (r.coker X))
+      (𝟙 X) (𝟙 (s (r.coker X))) (𝟙 (r.coker X))
+      (by simp) (by simp) = 𝟙 (colon_obj r s X) :=
+  pullback.map_id
 
+/-- The morphism on colon objects induced by a morphism `f : X ⟶ Y`. -/
 noncomputable
 def colon_map (r s : Preradical C) {X Y : C} (f : X ⟶ Y) :
 colon_obj r s X ⟶ colon_obj r s Y :=
@@ -104,20 +110,21 @@ colon_obj r s X ⟶ colon_obj r s Y :=
 
 @[simp]
 lemma colon_map_comp (r s : Preradical C) {L X Y : C} (f : L ⟶ X) (g : X ⟶ Y) :
-colon_map r s f ≫ colon_map r s g = colon_map r s (f ≫ g) := by
-  apply pullback.hom_ext <;> simp[colon_map,Category.assoc]
+    colon_map r s f ≫ colon_map r s g = colon_map r s (f ≫ g) := by
+  apply pullback.hom_ext <;> simp [colon_map,Category.assoc]
 
 @[simp, reassoc]
 lemma colon_map_fst (r s : Preradical C) {X Y : C} (f : X ⟶ Y) :
-colon_map r s f ≫ colon_fst r s Y = colon_fst r s X ≫ f := by
+    colon_map r s f ≫ r.colon_fst s Y = r.colon_fst s X ≫ f := by
   simp [colon_map, colon_fst]
 
 @[simp, reassoc]
 lemma colon_map_snd (r s : Preradical C) {X Y : C} (f : X ⟶ Y) :
-r.colon_snd s X ≫ s.map (r.coker_map f) = colon_map r s f ≫ r.colon_snd s Y := by
-  simp[colon_map,colon_snd]
+    r.colon_snd s X ≫ s.map (r.coker_map f) = colon_map r s f ≫ r.colon_snd s Y := by
+  simp [colon_map, colon_snd]
 
-/-- The preradical `r : s` from Stenström. -/
+/-- The colon preradical `r : s` from Stenström, defined objectwise as
+the pullback of `r.π X` along `s.ι (r.coker X)`. -/
 noncomputable
 def colon (r s : Preradical C) : Preradical C where
   F := {
@@ -125,13 +132,13 @@ def colon (r s : Preradical C) : Preradical C where
     map := fun f => colon_map r s f
     map_id := by
       intro X
-      simp[colon_map,← colon_map_id]
+      simp [colon_map, ← colon_map_id]
     map_comp := by
       intro L X Y f g
-      apply pullback.hom_ext <;> simp[colon_map]
+      apply pullback.hom_ext <;> simp [colon_map]
   }
   η := {
-    app := fun X => colon_fst r s X
+    app := fun X => r.colon_fst s X
     naturality := by
       intro X Y f
       simp
@@ -140,28 +147,28 @@ def colon (r s : Preradical C) : Preradical C where
 
 @[simp, reassoc]
 lemma colon_map_eq (r s : Preradical C) {X Y : C} (f : X ⟶ Y) :
-(r.colon s).map f = colon_map r s f := rfl
+    (r.colon s).map f = colon_map r s f :=
+  rfl
 
 @[simp]
 lemma colon_fst_eq_η_app (r s : Preradical C) :
-∀ X : C, (colon_fst r s X) = (colon r s).η.app X := fun _ => rfl
+    ∀ X : C, (r.colon_fst s X) = (colon r s).η.app X :=
+  fun _ => rfl
 
 @[simp]
 lemma colon_fst_eq_ι (r s : Preradical C) :
-∀ X : C, (colon_fst r s X) = (colon r s).ι X := by
+    ∀ X : C, (r.colon_fst s X) = (colon r s).ι X := by
   intro X
-  rw[colon_fst_eq_η_app,ι_eq_app]
+  rw [colon_fst_eq_η_app, ι_eq_app]
 
 @[simp, reassoc]
 lemma colon_fst_naturality (r s : Preradical C) {X Y : C} (f : X ⟶ Y) :
-(r.colon s).ι X ≫ f = (r.colon s).map f ≫ (r.colon s).ι Y := by
-  simp[← ι_naturality]
+    (r.colon s).ι X ≫ f = (r.colon s).map f ≫ (r.colon s).ι Y := by
+  simp [← ι_naturality]
 
 @[simp]
 lemma colon_snd_naturality (r s : Preradical C) {X Y : C} (f : X ⟶ Y) :
-r.colon_snd s X ≫ s.map (r.coker_map f) = (r.colon s).map f ≫ r.colon_snd s Y :=
+    r.colon_snd s X ≫ s.map (r.coker_map f) = (r.colon s).map f ≫ r.colon_snd s Y :=
   colon_map_snd r s f
-
-
 
 end Preradical
