@@ -3,8 +3,10 @@ Copyright (c) 2024 Blake Farman. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Blake Farman
 -/
-import Mathlib.CategoryTheory.Preradical.Basic
-import Mathlib.CategoryTheory.Preradical.Hom
+module
+
+public import Mathlib.CategoryTheory.Preradical.Basic
+public import Mathlib.CategoryTheory.Preradical.Hom
 
 /-!
 # A preorder on preradicals
@@ -19,6 +21,8 @@ antisymmetry: if `r ≤ s` and `s ≤ r`, then the underlying functors `r.F` and
 This file is part of the `Preradical` hierarchy; see
 `CategoryTheory/Preradical/Basic.lean` for an overview of the package.
 -/
+
+@[expose] public section
 
 open CategoryTheory
 open CategoryTheory.Limits

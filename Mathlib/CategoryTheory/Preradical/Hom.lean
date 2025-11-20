@@ -3,7 +3,8 @@ Copyright (c) 2025 Blake Farman. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Blake Farman
 -/
-import Mathlib.CategoryTheory.Preradical.Basic
+module
+public import Mathlib.CategoryTheory.Preradical.Basic
 
 /-!
 # Morphisms of preradicals
@@ -27,6 +28,8 @@ commutes.
 This file is part of the `Preradical` hierarchy; see
 `CategoryTheory/Preradical/Basic.lean` for an overview of the entire package.
 -/
+
+@[expose] public section
 
 open CategoryTheory
 open CategoryTheory.Limits

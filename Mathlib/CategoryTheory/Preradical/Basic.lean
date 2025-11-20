@@ -3,7 +3,8 @@ Copyright (c) 2025 Blake Farman. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Blake Farman
 -/
-import Mathlib.CategoryTheory.Abelian.Basic
+module
+public import Mathlib.CategoryTheory.Abelian.Basic
 /-!
 # Preradicals
 
@@ -32,6 +33,8 @@ and torsion theories (Stenström).
 
 category theory, preradical, subfunctor
 -/
+
+@[expose] public section
 
 open CategoryTheory
 open CategoryTheory.Limits

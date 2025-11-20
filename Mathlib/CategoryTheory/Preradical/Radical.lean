@@ -3,11 +3,13 @@ Copyright (c) 2024 Blake Farman. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Blake Farman
 -/
-import Mathlib.CategoryTheory.Preradical.Basic
-import Mathlib.CategoryTheory.Preradical.Hom
-import Mathlib.CategoryTheory.Preradical.Colon
-import Mathlib.CategoryTheory.Limits.Shapes.ZeroObjects
-import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
+module
+
+public import Mathlib.CategoryTheory.Preradical.Basic
+public import Mathlib.CategoryTheory.Preradical.Hom
+public import Mathlib.CategoryTheory.Preradical.Colon
+public import Mathlib.CategoryTheory.Limits.Shapes.ZeroObjects
+public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
 
 /-!
 # Radicals of preradicals
@@ -52,6 +54,7 @@ characterization theorem.
 
 category_theory, preradical, radical, torsion, abelian
 -/
+@[expose] public section
 
 open CategoryTheory
 open CategoryTheory.Limits

@@ -3,9 +3,11 @@ Copyright (c) 2025 Blake Farman. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Blake Farman
 -/
-import Mathlib.CategoryTheory.Preradical.Basic
-import Mathlib.CategoryTheory.Preradical.Hom
-import Mathlib.CategoryTheory.Preradical.CokernelConstruction
+module
+
+public import Mathlib.CategoryTheory.Preradical.Basic
+public import Mathlib.CategoryTheory.Preradical.Hom
+public import Mathlib.CategoryTheory.Preradical.CokernelConstruction
 
 /-!
 # The colon construction on preradicals
@@ -33,6 +35,8 @@ This file is part of the `Preradical` hierarchy; see
 
 category_theory, preradical, colon, pullback
 -/
+
+@[expose] public section
 
 open CategoryTheory
 open CategoryTheory.Limits
