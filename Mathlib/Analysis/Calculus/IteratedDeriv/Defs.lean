@@ -3,8 +3,10 @@ Copyright (c) 2020 Sébastien Gouëzel. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sébastien Gouëzel
 -/
-import Mathlib.Analysis.Calculus.Deriv.Basic
-import Mathlib.Analysis.Calculus.ContDiff.Defs
+module
+
+public import Mathlib.Analysis.Calculus.Deriv.Basic
+public import Mathlib.Analysis.Calculus.ContDiff.Defs
 
 /-!
 # One-dimensional iterated derivatives
@@ -40,6 +42,8 @@ by translating the corresponding result `iteratedFDerivWithin_succ_apply_left` f
 iterated Fréchet derivative.
 -/
 
+@[expose] public section
+
 noncomputable section
 
 open scoped Topology
@@ -62,6 +66,10 @@ variable {n : ℕ} {f : 𝕜 → F} {s : Set 𝕜} {x : 𝕜}
 theorem iteratedDerivWithin_univ : iteratedDerivWithin n f univ = iteratedDeriv n f := by
   ext x
   rw [iteratedDerivWithin, iteratedDeriv, iteratedFDerivWithin_univ]
+
+theorem iteratedDerivWithin_eq_iteratedDeriv (hs : UniqueDiffOn 𝕜 s) (h : ContDiffAt 𝕜 n f x)
+    (hx : x ∈ s) : iteratedDerivWithin n f s x = iteratedDeriv n f x := by
+  rw [iteratedDerivWithin, iteratedDeriv, iteratedFDerivWithin_eq_iteratedFDeriv hs h hx]
 
 /-! ### Properties of the iterated derivative within a set -/
 
@@ -102,8 +110,9 @@ theorem iteratedDerivWithin_zero : iteratedDerivWithin 0 f s = f := by
   simp [iteratedDerivWithin]
 
 @[simp]
-theorem iteratedDerivWithin_one {x : 𝕜} :
-    iteratedDerivWithin 1 f s x = derivWithin f s x := by
+theorem iteratedDerivWithin_one :
+    iteratedDerivWithin 1 f s = derivWithin f s := by
+  ext x
   by_cases hsx : AccPt x (𝓟 s)
   · simp only [iteratedDerivWithin, iteratedFDerivWithin_one_apply hsx.uniqueDiffWithinAt,
       derivWithin]
@@ -335,4 +344,4 @@ lemma AnalyticAt.hasFPowerSeriesAt {𝕜 : Type*} [NontriviallyNormedField 𝕜]
   left
   rw [div_eq_iff, mul_comm, h_fact_smul, ← iteratedDeriv_eq_iteratedFDeriv]
   norm_cast
-  exact Nat.factorial_ne_zero _
+  positivity

@@ -3,7 +3,9 @@ Copyright (c) 2020 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, Bhavik Mehta
 -/
-import Mathlib.CategoryTheory.Limits.Preserves.Basic
+module
+
+public import Mathlib.CategoryTheory.Limits.Preserves.Basic
 
 /-!
 # Isomorphisms about functors which preserve (co)limits
@@ -16,6 +18,8 @@ We also show that we can commute `IsLimit.lift` of a preserved limit with `Funct
 The duals of these are also given. For functors which preserve (co)limits of specific shapes, see
 `preserves/shapes.lean`.
 -/
+
+@[expose] public section
 
 
 universe w' w v₁ v₂ u₁ u₂
@@ -72,7 +76,7 @@ instance : IsIso (limit.post F G) :=
 variable [PreservesLimitsOfShape J G] [HasLimitsOfShape J D] [HasLimitsOfShape J C]
 
 /-- If `C, D` has all limits of shape `J`, and `G` preserves them, then `preservesLimitsIso` is
-functorial wrt `F`. -/
+functorial w.r.t. `F`. -/
 @[simps!]
 def preservesLimitNatIso : lim ⋙ G ≅ (Functor.whiskeringRight J C D).obj G ⋙ lim :=
   NatIso.ofComponents (fun F => preservesLimitIso G F)
@@ -90,7 +94,7 @@ section
 variable [HasLimit F] [HasLimit (F ⋙ G)]
 
 /-- If the comparison morphism `G.obj (limit F) ⟶ limit (F ⋙ G)` is an isomorphism, then `G`
-    preserves limits of `F`. -/
+preserves limits of `F`. -/
 lemma preservesLimit_of_isIso_post [IsIso (limit.post F G)] : PreservesLimit F G :=
   preservesLimit_of_preserves_limit_cone (limit.isLimit F) (by
     convert IsLimit.ofPointIso (limit.isLimit (F ⋙ G))
@@ -139,7 +143,7 @@ instance : IsIso (colimit.post F G) :=
 variable [PreservesColimitsOfShape J G] [HasColimitsOfShape J D] [HasColimitsOfShape J C]
 
 /-- If `C, D` has all colimits of shape `J`, and `G` preserves them, then `preservesColimitIso`
-is functorial wrt `F`. -/
+is functorial w.r.t. `F`. -/
 @[simps!]
 def preservesColimitNatIso : colim ⋙ G ≅ (Functor.whiskeringRight J C D).obj G ⋙ colim :=
   NatIso.ofComponents (fun F => preservesColimitIso G F)
@@ -160,7 +164,7 @@ section
 variable [HasColimit F] [HasColimit (F ⋙ G)]
 
 /-- If the comparison morphism `colimit (F ⋙ G) ⟶ G.obj (colimit F)` is an isomorphism, then `G`
-    preserves colimits of `F`. -/
+preserves colimits of `F`. -/
 lemma preservesColimit_of_isIso_post [IsIso (colimit.post F G)] : PreservesColimit F G :=
   preservesColimit_of_preserves_colimit_cocone (colimit.isColimit F) (by
     convert IsColimit.ofPointIso (colimit.isColimit (F ⋙ G))

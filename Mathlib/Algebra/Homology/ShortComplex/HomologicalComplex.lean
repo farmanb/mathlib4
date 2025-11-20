@@ -3,10 +3,12 @@ Copyright (c) 2023 Joël Riou. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joël Riou
 -/
-import Mathlib.Algebra.Homology.Additive
-import Mathlib.Algebra.Homology.ShortComplex.Exact
-import Mathlib.Algebra.Homology.ShortComplex.Preadditive
-import Mathlib.Tactic.Linarith
+module
+
+public import Mathlib.Algebra.Homology.Additive
+public import Mathlib.Algebra.Homology.ShortComplex.Exact
+public import Mathlib.Algebra.Homology.ShortComplex.Preadditive
+public import Mathlib.Tactic.Linarith
 
 /-!
 # The short complexes attached to homological complexes
@@ -21,6 +23,8 @@ the homology of the short complex `(shortComplexFunctor C c i).obj K`, which can
 abbreviated as `K.sc i`.
 
 -/
+
+@[expose] public section
 
 open CategoryTheory Category Limits
 
@@ -50,7 +54,7 @@ when `c.prev j = i` and `c.next j = k`. -/
 noncomputable def natIsoSc' (i j k : ι) (hi : c.prev j = i) (hk : c.next j = k) :
     shortComplexFunctor C c j ≅ shortComplexFunctor' C c i j k :=
   NatIso.ofComponents (fun K => ShortComplex.isoMk (K.XIsoOfEq hi) (Iso.refl _) (K.XIsoOfEq hk)
-    (by simp) (by simp)) (by aesop_cat)
+    (by simp) (by simp)) (by cat_disch)
 
 variable {C c}
 
@@ -538,7 +542,7 @@ lemma iCyclesIso_inv_hom_id :
   (K.iCyclesIso i j hj h).inv_hom_id
 
 lemma isIso_homologyι : IsIso (K.homologyι i) :=
-  ShortComplex.isIso_homologyι _ (by aesop_cat)
+  ShortComplex.isIso_homologyι _ (by cat_disch)
 
 /-- The canonical isomorphism `K.homology i ≅ K.opcycles i`
 when the differential from `i` is zero. -/
@@ -585,7 +589,7 @@ lemma pOpcyclesIso_inv_hom_id :
   (K.pOpcyclesIso i j hi h).inv_hom_id
 
 lemma isIso_homologyπ : IsIso (K.homologyπ j) :=
-  ShortComplex.isIso_homologyπ _ (by aesop_cat)
+  ShortComplex.isIso_homologyπ _ (by cat_disch)
 
 /-- The canonical isomorphism `K.cycles j ≅ K.homology j`
 when the differential to `j` is zero. -/

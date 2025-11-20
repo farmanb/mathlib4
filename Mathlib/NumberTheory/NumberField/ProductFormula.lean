@@ -3,8 +3,10 @@ Copyright (c) 2024 Fabrizio Barroero. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Fabrizio Barroero
 -/
-import Mathlib.NumberTheory.NumberField.FinitePlaces
-import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+module
+
+public import Mathlib.NumberTheory.NumberField.FinitePlaces
+public import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 
 /-!
 # The Product Formula for number fields
@@ -29,6 +31,8 @@ ideal of `𝓞 K` raised to the power of the `v`-adic valuation of `x`.
 number field, embeddings, places, infinite places, finite places, product formula
 -/
 
+@[expose] public section
+
 namespace NumberField
 
 variable {K : Type*} [Field K] [NumberField K]
@@ -36,7 +40,7 @@ variable {K : Type*} [Field K] [NumberField K]
 open Algebra
 
 open Function Ideal IsDedekindDomain HeightOneSpectrum in
-/-- For any non-zero `x` in `𝓞 K`, the prduct of `w x`, where `w` runs over `FinitePlace K`, is
+/-- For any non-zero `x` in `𝓞 K`, the product of `w x`, where `w` runs over `FinitePlace K`, is
 equal to the inverse of the absolute value of `Algebra.norm ℤ x`. -/
 theorem FinitePlace.prod_eq_inv_abs_norm_int {x : 𝓞 K} (h_x_nezero : x ≠ 0) :
     ∏ᶠ w : FinitePlace K, w x = (|norm ℤ x| : ℝ)⁻¹ := by
@@ -68,7 +72,7 @@ theorem FinitePlace.prod_eq_inv_abs_norm_int {x : 𝓞 K} (h_x_nezero : x ≠ 0)
   rw [h_prod, ← finprod_mul_distrib h_fin₁ h_fin₂]
   exact finprod_eq_one_of_forall_eq_one fun v ↦ v.embedding_mul_absNorm h_x_nezero
 
-/-- For any non-zero `x` in `K`, the prduct of `w x`, where `w` runs over `FinitePlace K`, is
+/-- For any non-zero `x` in `K`, the product of `w x`, where `w` runs over `FinitePlace K`, is
 equal to the inverse of the absolute value of `Algebra.norm ℚ x`. -/
 theorem FinitePlace.prod_eq_inv_abs_norm {x : K} (h_x_nezero : x ≠ 0) :
     ∏ᶠ w : FinitePlace K, w x = |(Algebra.norm ℚ) x|⁻¹ := by

@@ -3,7 +3,9 @@ Copyright (c) 2017 Johannes Hölzl. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johannes Hölzl, Johan Commelin, Mario Carneiro
 -/
-import Mathlib.Algebra.MvPolynomial.Variables
+module
+
+public import Mathlib.Algebra.MvPolynomial.Variables
 
 /-!
 # Multivariate polynomials over a ring
@@ -31,6 +33,8 @@ This will give rise to a monomial in `MvPolynomial σ R` which mathematicians mi
 + `p : MvPolynomial σ R`
 
 -/
+
+@[expose] public section
 
 
 noncomputable section
@@ -176,7 +180,7 @@ theorem degreeOf_sub_lt {x : σ} {f g : MvPolynomial σ R} {k : ℕ} (h : 0 < k)
     (hg : ∀ m : σ →₀ ℕ, m ∈ g.support → k ≤ m x → coeff m f = coeff m g) :
     degreeOf x (f - g) < k := by
   rw [degreeOf_lt_iff h]
-  grind [degreeOf_lt_iff, mem_support_iff, coeff_sub, Finset.mem_union]
+  grind [degreeOf_lt_iff, mem_support_iff, coeff_sub]
 
 end DegreeOf
 

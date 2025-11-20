@@ -3,12 +3,14 @@ Copyright (c) 2020 Anne Baanen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Anne Baanen, Kexing Ying, Eric Wieser
 -/
-import Mathlib.Data.Finset.Sym
-import Mathlib.LinearAlgebra.BilinearMap
-import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
-import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
-import Mathlib.LinearAlgebra.Matrix.SesquilinearForm
-import Mathlib.LinearAlgebra.Matrix.Symmetric
+module
+
+public import Mathlib.Data.Finset.Sym
+public import Mathlib.LinearAlgebra.BilinearMap
+public import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
+public import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
+public import Mathlib.LinearAlgebra.Matrix.SesquilinearForm
+public import Mathlib.LinearAlgebra.Matrix.Symmetric
 
 /-!
 # Quadratic maps
@@ -74,6 +76,8 @@ has some further discussion.
 
 quadratic map, homogeneous polynomial, quadratic polynomial
 -/
+
+@[expose] public section
 
 universe u v w
 
@@ -144,6 +148,9 @@ end Polar
 For a more familiar constructor when `R` is a ring, see `QuadraticMap.ofPolar`. -/
 structure QuadraticMap (R : Type u) (M : Type v) (N : Type w) [CommSemiring R] [AddCommMonoid M]
     [Module R M] [AddCommMonoid N] [Module R N] where
+  /-- The underlying function.
+
+  Do NOT use directly. Use the coercion instead. -/
   toFun : M → N
   toFun_smul : ∀ (a : R) (x : M), toFun (a • x) = (a * a) • toFun x
   exists_companion' : ∃ B : BilinMap R M N, ∀ x y, toFun (x + y) = toFun x + toFun y + B x y
@@ -298,7 +305,7 @@ theorem polar_sub_right (x y y' : M) : polar Q x (y - y') = polar Q x y - polar 
 @[simp]
 theorem polar_self (x : M) : polar Q x x = 2 • Q x := by
   rw [polar, map_add_self, sub_sub, sub_eq_iff_eq_add, ← two_smul ℕ, ← two_smul ℕ, ← mul_smul]
-  norm_num
+  simp
 
 /-- `QuadraticMap.polar` as a bilinear map -/
 @[simps!]
@@ -909,7 +916,7 @@ theorem associated_isSymm (Q : QuadraticMap R M N) (x y : M) :
 
 theorem _root_.QuadraticForm.associated_isSymm (Q : QuadraticForm R M) [Invertible (2 : R)] :
     (associatedHom S Q).IsSymm :=
-  QuadraticMap.associated_isSymm S Q
+  ⟨QuadraticMap.associated_isSymm S Q⟩
 
 /-- A version of `QuadraticMap.associated_isSymm` for general targets
 (using `flip` because `IsSymm` does not apply here). -/
@@ -963,7 +970,7 @@ abbrev associated' : QuadraticMap R M N →ₗ[ℤ] BilinMap R M N :=
 /-- Symmetric bilinear forms can be lifted to quadratic forms -/
 instance canLift [Invertible (2 : R)] :
     CanLift (BilinMap R M R) (QuadraticForm R M) (associatedHom ℕ) LinearMap.IsSymm where
-  prf B hB := ⟨B.toQuadraticMap, associated_left_inverse _ hB⟩
+  prf B := fun ⟨hB⟩ ↦ ⟨B.toQuadraticMap, associated_left_inverse _ hB⟩
 
 /-- Symmetric bilinear maps can be lifted to quadratic maps -/
 instance canLift' :
@@ -1057,7 +1064,7 @@ theorem _root_.LinearMap.BilinForm.toQuadraticMap_isOrtho [IsCancelAdd R]
   letI : AddCancelMonoid R := { ‹IsCancelAdd R›, (inferInstanceAs <| AddCommMonoid R) with }
   simp_rw [isOrtho_def, LinearMap.isOrtho_def, B.toQuadraticMap_apply, map_add,
     LinearMap.add_apply, add_comm _ (B y y), add_add_add_comm _ _ (B y y), add_comm (B y y)]
-  rw [add_eq_left (a := B x x + B y y), ← h, RingHom.id_apply, add_self_eq_zero]
+  rw [add_eq_left (a := B x x + B y y), ← h.eq, RingHom.id_apply, add_self_eq_zero]
 
 end CommSemiring
 
@@ -1216,7 +1223,6 @@ open Matrix
 @[simp]
 theorem toMatrix'_comp (Q : QuadraticMap R (m → R) R) (f : (n → R) →ₗ[R] m → R) :
     (Q.comp f).toMatrix' = (LinearMap.toMatrix' f)ᵀ * Q.toMatrix' * (LinearMap.toMatrix' f) := by
-  ext
   simp only [QuadraticMap.associated_comp, LinearMap.toMatrix₂'_compl₁₂, toMatrix']
 
 section Discriminant
@@ -1317,7 +1323,7 @@ theorem exists_orthogonal_basis [hK : Invertible (2 : K)] {B : LinearMap.BilinFo
   refine Fin.cases ?_ (fun i => ?_) i <;> refine Fin.cases ?_ (fun j => ?_) j <;> intro hij <;>
     simp only [Function.onFun, Fin.cons_zero, Fin.cons_succ, Function.comp_apply]
   · exact (hij rfl).elim
-  · rw [IsOrtho, ← hB₂]
+  · rw [IsOrtho, ← hB₂.eq]
     exact (v' j).prop _ (Submodule.mem_span_singleton_self x)
   · exact (v' i).prop _ (Submodule.mem_span_singleton_self x)
   · exact hv₁ (ne_of_apply_ne _ hij)

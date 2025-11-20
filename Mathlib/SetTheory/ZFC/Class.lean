@@ -3,7 +3,9 @@ Copyright (c) 2018 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
-import Mathlib.SetTheory.ZFC.Ordinal
+module
+
+public import Mathlib.SetTheory.ZFC.Ordinal
 
 /-!
 # ZFC classes
@@ -19,6 +21,8 @@ definitionally equal to ours.
 * `Class.iota`: Definite description operator.
 * `ZFSet.isOrdinal_notMem_univ`: The Burali-Forti paradox. Ordinals form a proper class.
 -/
+
+@[expose] public section
 
 
 universe u
@@ -131,9 +135,7 @@ def congToClass (x : Set Class.{u}) : Class.{u} :=
 
 @[simp]
 theorem congToClass_empty : congToClass ∅ = ∅ := by
-  ext z
-  simp only [congToClass, not_empty_hom, iff_false]
-  exact Set.notMem_empty z
+  rfl
 
 /-- Convert a class into a conglomerate (a collection of classes) -/
 def classToCong (x : Class.{u}) : Set Class.{u} :=
@@ -141,7 +143,6 @@ def classToCong (x : Class.{u}) : Set Class.{u} :=
 
 @[simp]
 theorem classToCong_empty : classToCong ∅ = ∅ := by
-  ext
   simp [classToCong]
 
 /-- The power class of a class is the class of all subclasses that are ZFC sets -/
@@ -362,7 +363,7 @@ private lemma toSet_equiv_aux {s : Set ZFSet.{u}} (hs : Small.{u} s) :
 noncomputable def toSet_equiv : ZFSet.{u} ≃ {s : Set ZFSet.{u} // Small.{u, u+1} s} where
   toFun x := ⟨x.toSet, x.small_toSet⟩
   invFun := fun ⟨s, _⟩ ↦ mk <| PSet.mk (Shrink s) fun x ↦ ((equivShrink.{u, u + 1} s).symm x).1.out
-  left_inv := Function.rightInverse_of_injective_of_leftInverse (by intros x y; simp)
+  left_inv := Function.rightInverse_of_injective_of_leftInverse (by intro _ _; simp)
     fun s ↦ Subtype.coe_injective <| toSet_equiv_aux s.2
   right_inv s := Subtype.coe_injective <| toSet_equiv_aux s.2
 

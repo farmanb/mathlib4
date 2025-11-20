@@ -3,9 +3,10 @@ Copyright (c) 2023 Joël Riou. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joël Riou
 -/
+module
 
-import Mathlib.Algebra.Homology.ShortComplex.LeftHomology
-import Mathlib.CategoryTheory.Limits.Opposites
+public import Mathlib.Algebra.Homology.ShortComplex.LeftHomology
+public import Mathlib.CategoryTheory.Limits.Shapes.Opposites.Kernels
 
 /-!
 # Right Homology of short complexes
@@ -26,6 +27,8 @@ In `Homology.lean`, when `S` has two compatible left and right homology data
 `[S.HasHomology]` and `S.homology`.
 
 -/
+
+@[expose] public section
 
 namespace CategoryTheory
 
@@ -362,11 +365,11 @@ structure RightHomologyMapData where
   /-- the induced map on right homology -/
   φH : h₁.H ⟶ h₂.H
   /-- commutation with `p` -/
-  commp : h₁.p ≫ φQ = φ.τ₂ ≫ h₂.p := by aesop_cat
+  commp : h₁.p ≫ φQ = φ.τ₂ ≫ h₂.p := by cat_disch
   /-- commutation with `g'` -/
-  commg' : φQ ≫ h₂.g' = h₁.g' ≫ φ.τ₃ := by aesop_cat
+  commg' : φQ ≫ h₂.g' = h₁.g' ≫ φ.τ₃ := by cat_disch
   /-- commutation with `ι` -/
-  commι : φH ≫ h₂.ι = h₁.ι ≫ φQ := by aesop_cat
+  commι : φH ≫ h₂.ι = h₁.ι ≫ φQ := by cat_disch
 
 namespace RightHomologyMapData
 

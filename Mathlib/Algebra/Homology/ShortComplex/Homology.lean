@@ -3,8 +3,9 @@ Copyright (c) 2023 Joël Riou. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joël Riou
 -/
+module
 
-import Mathlib.Algebra.Homology.ShortComplex.RightHomology
+public import Mathlib.Algebra.Homology.ShortComplex.RightHomology
 
 /-!
 # Homology of short complexes
@@ -31,6 +32,8 @@ such a structure could be used as a basis for the *definition* of homology.
 
 -/
 
+@[expose] public section
+
 universe v u
 
 namespace CategoryTheory
@@ -54,7 +57,7 @@ structure HomologyData where
   iso : left.H ≅ right.H
   /-- the pentagon relation expressing the compatibility of the left
   and right homology data -/
-  comm : left.π ≫ iso.hom ≫ right.ι = left.i ≫ right.p := by aesop_cat
+  comm : left.π ≫ iso.hom ≫ right.ι = left.i ≫ right.p := by cat_disch
 
 attribute [reassoc (attr := simp)] HomologyData.comm
 

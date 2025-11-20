@@ -3,9 +3,11 @@ Copyright (c) 2020 Frédéric Dupuis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frédéric Dupuis, Eric Wieser
 -/
-import Mathlib.LinearAlgebra.Multilinear.TensorProduct
-import Mathlib.Tactic.AdaptationNote
-import Mathlib.LinearAlgebra.Multilinear.Curry
+module
+
+public import Mathlib.LinearAlgebra.Multilinear.TensorProduct
+public import Mathlib.Tactic.AdaptationNote
+public import Mathlib.LinearAlgebra.Multilinear.Curry
 
 /-!
 # Tensor product of an indexed family of modules over commutative semirings
@@ -29,9 +31,9 @@ binary tensor product in `LinearAlgebra/TensorProduct.lean`.
 * `PiTensorProduct.tmulEquiv` equivalence between a `TensorProduct` of `PiTensorProduct`s and
   a single `PiTensorProduct`.
 
-## Notations
+## Notation
 
-* `⨂[R] i, s i` is defined as localized notation in locale `TensorProduct`.
+* `⨂[R] i, s i` is defined as localized notation in scope `TensorProduct`.
 * `⨂ₜ[R] i, f i` with `f : ∀ i, s i` is defined globally as the tensor product of all the `f i`'s.
 
 ## Implementation notes
@@ -59,6 +61,8 @@ binary tensor product in `LinearAlgebra/TensorProduct.lean`.
 
 multilinear, tensor, tensor product
 -/
+
+@[expose] public section
 
 open Function
 
@@ -222,7 +226,6 @@ protected theorem smul_add (r : R₁) (x y : ⨂[R] i, s i) : r • (x + y) = r 
   AddMonoidHom.map_add _ _ _
 
 instance distribMulAction' : DistribMulAction R₁ (⨂[R] i, s i) where
-  smul := (· • ·)
   smul_add _ _ _ := AddMonoidHom.map_add _ _ _
   mul_smul r r' x :=
     PiTensorProduct.induction_on' x (fun {r'' f} ↦ by simp [smul_tprodCoeff', smul_smul])
@@ -327,7 +330,7 @@ lemma nonempty_lifts (x : ⨂[R] i, s i) : Set.Nonempty (lifts x) := by
 /-- The empty list lifts the element `0` of `⨂[R] i, s i`.
 -/
 lemma lifts_zero : 0 ∈ lifts (0 : ⨂[R] i, s i) := by
-  rw [mem_lifts_iff]; erw [List.map_nil]; rw [List.sum_nil]
+  rw [mem_lifts_iff, FreeAddMonoid.toList_zero, List.map_nil, List.sum_nil]
 
 /-- If elements `p,q` of `FreeAddMonoid (R × Π i, s i)` lift elements `x,y` of `⨂[R] i, s i`
 respectively, then `p + q` lifts `x + y`.
@@ -405,11 +408,6 @@ theorem liftAux_tprod (φ : MultilinearMap R s E) (f : Π i, s i) : liftAux φ (
   -- show _ • _ = _
   -- rw [one_smul]
   erw [AddCon.lift_coe]
-  rw [FreeAddMonoid.of]
-  dsimp [FreeAddMonoid.ofList]
-  rw [← one_smul R (φ f)]
-  erw [Equiv.refl_apply]
-  convert one_smul R (φ f)
   simp
 
 theorem liftAux_tprodCoeff (φ : MultilinearMap R s E) (z : R) (f : Π i, s i) :
@@ -782,8 +780,7 @@ def isEmptyEquiv [IsEmpty ι] : (⨂[R] i : ι, s i) ≃ₗ[R] R where
   left_inv x := by
     refine x.induction_on ?_ ?_
     · intro x y
-      -- Note: https://github.com/leanprover-community/mathlib4/pull/8386 had to change `map_smulₛₗ` into `map_smulₛₗ _`
-      simp only [map_smulₛₗ _, RingHom.id_apply, lift.tprod, constOfIsEmpty_apply, const_apply,
+      simp only [map_smulₛₗ, RingHom.id_apply, lift.tprod, constOfIsEmpty_apply, const_apply,
         smul_eq_mul, mul_one]
       congr
       aesop
@@ -839,7 +836,7 @@ variable (N : ι ⊕ ι₂ → Type*) [∀ i, AddCommMonoid (N i)] [∀ i, Modul
 
 /-- Equivalence between a `TensorProduct` of `PiTensorProduct`s and a single
 `PiTensorProduct` indexed by a `Sum` type. If `N` is a constant family of
-modules, use the non-dependant version `PiTensorProduct.tmulEquiv` instead. -/
+modules, use the non-dependent version `PiTensorProduct.tmulEquiv` instead. -/
 def tmulEquivDep :
     (⨂[R] i₁, N (.inl i₁)) ⊗[R] (⨂[R] i₂, N (.inr i₂)) ≃ₗ[R] ⨂[R] i, N i :=
   LinearEquiv.ofLinear

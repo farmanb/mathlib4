@@ -3,8 +3,10 @@ Copyright (c) 2020 Thomas Browning. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Thomas Browning, Junyan Xu
 -/
-import Mathlib.Data.Fintype.Order
-import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
+module
+
+public import Mathlib.Data.Fintype.Order
+public import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
 
 /-!
 # Extension of field embeddings
@@ -20,6 +22,8 @@ extends to an embedding of E/F into K/F.
 The American Mathematical Monthly
 
 -/
+
+@[expose] public section
 
 open Polynomial
 
@@ -235,7 +239,7 @@ private theorem exists_algHom_adjoin_of_splits'' {L : IntermediateField F E}
     adjoin_le_iff.mpr fun s h ↦ ?_), AlgHom.ext hfφ.2⟩
   letI := (inclusion hfφ.1).toAlgebra
   letI : SMul L φ.carrier := Algebra.toSMul
-  have : IsScalarTower L φ.carrier E := ⟨(smul_assoc · (· : E))⟩
+  have : IsScalarTower L φ.carrier E := ⟨fun x y ↦ smul_assoc x (y : E)⟩
   have := φ.exists_lift_of_splits' (hK s h).1.tower_top ((hK s h).1.minpoly_splits_tower_top' ?_)
   · obtain ⟨y, h1, h2⟩ := this
     exact (hφ h1).1 h2

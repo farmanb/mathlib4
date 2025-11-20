@@ -3,11 +3,13 @@ Copyright (c) 2018 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, Mario Carneiro, Reid Barton, Andrew Yang
 -/
-import Mathlib.Topology.Category.TopCat.Opens
-import Mathlib.CategoryTheory.Adjunction.Unique
-import Mathlib.CategoryTheory.Functor.KanExtension.Adjunction
-import Mathlib.Topology.Sheaves.Init
-import Mathlib.Data.Set.Subsingleton
+module
+
+public import Mathlib.Topology.Category.TopCat.Opens
+public import Mathlib.CategoryTheory.Adjunction.Unique
+public import Mathlib.CategoryTheory.Functor.KanExtension.Adjunction
+public import Mathlib.Topology.Sheaves.Init
+public import Mathlib.Data.Set.Subsingleton
 
 /-!
 # Presheaves on a topological space
@@ -28,6 +30,8 @@ We also define the functors `pullback C f : Y.Presheaf C ⥤ X.Presheaf c`,
 and provide their adjunction at
 `TopCat.Presheaf.pushforwardPullbackAdjunction`.
 -/
+
+@[expose] public section
 
 universe w v u
 
@@ -150,7 +154,7 @@ def pushforward {X Y : TopCat.{w}} (f : X ⟶ Y) : X.Presheaf C ⥤ Y.Presheaf C
 
 /-- push forward of a presheaf -/
 scoped[AlgebraicGeometry] notation f:80 " _* " P:81 =>
-  Prefunctor.obj (Functor.toPrefunctor (TopCat.Presheaf.pushforward _ f)) P
+  Functor.obj (TopCat.Presheaf.pushforward _ f) P
 
 @[simp]
 theorem pushforward_map_app' {X Y : TopCat.{w}} (f : X ⟶ Y) {ℱ 𝒢 : X.Presheaf C} (α : ℱ ⟶ 𝒢)
@@ -210,7 +214,7 @@ theorem pushforward_eq' {X Y : TopCat.{w}} {f g : X ⟶ Y} (h : f = g) (ℱ : X.
 @[simp]
 theorem pushforwardEq_hom_app {X Y : TopCat.{w}} {f g : X ⟶ Y}
     (h : f = g) (ℱ : X.Presheaf C) (U) :
-    (pushforwardEq h ℱ).hom.app U = ℱ.map (eqToHom (by aesop_cat)) := by
+    (pushforwardEq h ℱ).hom.app U = ℱ.map (eqToHom (by cat_disch)) := by
   simp [pushforwardEq]
 
 variable (C)

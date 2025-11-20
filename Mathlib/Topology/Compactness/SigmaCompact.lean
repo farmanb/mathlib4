@@ -3,9 +3,11 @@ Copyright (c) 2017 Johannes Hölzl. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johannes Hölzl, Mario Carneiro, Yury Kudryashov
 -/
-import Mathlib.Topology.Bases
-import Mathlib.Topology.Compactness.LocallyCompact
-import Mathlib.Topology.Compactness.LocallyFinite
+module
+
+public import Mathlib.Topology.Bases
+public import Mathlib.Topology.Compactness.LocallyCompact
+public import Mathlib.Topology.Compactness.LocallyFinite
 
 /-!
 # Sigma-compactness in topological spaces
@@ -16,6 +18,8 @@ import Mathlib.Topology.Compactness.LocallyFinite
   of a countable collection of compact subspaces.
 
 -/
+
+@[expose] public section
 
 open Set Filter Topology TopologicalSpace
 
@@ -319,7 +323,7 @@ structure CompactExhaustion (X : Type*) [TopologicalSpace X] where
   /-- The sets in the compact exhaustion are in fact compact. -/
   isCompact' : ∀ n, IsCompact (toFun n)
   /-- The sets in the compact exhaustion form a sequence:
-    each set is contained in the interior of the next. -/
+  each set is contained in the interior of the next. -/
   subset_interior_succ' : ∀ n, toFun n ⊆ interior (toFun (n + 1))
   /-- The union of all sets in a compact exhaustion equals the entire space. -/
   iUnion_eq' : ⋃ n, toFun n = univ

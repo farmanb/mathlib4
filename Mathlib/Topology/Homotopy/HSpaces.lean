@@ -3,9 +3,11 @@ Copyright (c) 2022 Filippo A. E. Nuccio Mortarino Majno di Capriglio. All rights
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Filippo A. E. Nuccio, Junyan Xu
 -/
-import Mathlib.Topology.CompactOpen
-import Mathlib.Topology.Homotopy.Basic
-import Mathlib.Topology.Path
+module
+
+public import Mathlib.Topology.CompactOpen
+public import Mathlib.Topology.Homotopy.Basic
+public import Mathlib.Topology.Path
 
 /-!
 # H-spaces
@@ -46,6 +48,8 @@ Some notable properties of `H-spaces` are
 * [J.-P. Serre, *Homologie singulière des espaces fibrés. Applications*,
   Ann. of Math (2) 1951, 54, 425–505][serre1951]
 -/
+
+@[expose] public section
 
 universe u v
 
@@ -110,10 +114,10 @@ lead to a diamond since a topological field would inherit two `HSpace` structure
 `MulOneClass` and one from the `AddZeroClass`. In the case of a group, we make
 `IsTopologicalGroup.hSpace` an instance." -/
 @[to_additive
-      "The definition `toHSpace` is not an instance because it comes together with a
+      /-- The definition `toHSpace` is not an instance because it comes together with a
       multiplicative version which would lead to a diamond since a topological field would inherit
       two `HSpace` structures, one from the `MulOneClass` and one from the `AddZeroClass`.
-      In the case of an additive group, we make `IsTopologicalAddGroup.hSpace` an instance."]
+      In the case of an additive group, we make `IsTopologicalAddGroup.hSpace` an instance. -/]
 def toHSpace (M : Type u) [MulOneClass M] [TopologicalSpace M] [ContinuousMul M] : HSpace M where
   hmul := ⟨Function.uncurry Mul.mul, continuous_mul⟩
   e := 1

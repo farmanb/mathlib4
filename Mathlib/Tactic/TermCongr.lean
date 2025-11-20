@@ -3,10 +3,12 @@ Copyright (c) 2023 Kyle Miller. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
-import Mathlib.Lean.Expr.Basic
-import Mathlib.Lean.Meta.CongrTheorems
-import Mathlib.Logic.Basic
-import Mathlib.Tactic.CongrExclamation
+module
+
+public meta import Mathlib.Lean.Expr.Basic
+public meta import Mathlib.Lean.Meta.CongrTheorems
+public meta import Mathlib.Logic.Basic
+public meta import Mathlib.Tactic.CongrExclamation
 
 /-! # `congr(...)` congruence quotations
 
@@ -46,6 +48,8 @@ no way to inform `simp` about the expected RHS, which could cause `simp` to fail
 it eagerly wants to solve for instance arguments. The current version is able to use the
 expected LHS and RHS to fill in arguments before solving for instance arguments.
 -/
+
+public meta section
 
 universe u
 
@@ -105,7 +109,7 @@ we know whether we want an iff, eq, or heq, while also allowing it to choose
 to elaborate as an iff, eq, or heq.
 Later, the congruence generator handles any discrepancies.
 See `Mathlib/Tactic/TermCongr/CongrResult.lean`. -/
-@[reducible, nolint unusedArguments]
+@[reducible, nolint unusedArguments, expose]
 def cHole {α : Sort u} (val : α) {p : Prop} (_pf : p) : α := val
 
 /-- For error reporting purposes, make the hole pretty print as its value.
@@ -245,9 +249,9 @@ def ensureIff (pf : Expr) : MetaM Expr := do
 inductive CongrType
   | eq | heq
 
-/-- A congruence lemma between two expressions.
-The proof is generated dynamically, depending on whether the resulting lemma should be
-an `Eq` or a `HEq`.
+/--
+A congruence lemma between two expressions. The proof is generated dynamically, depending on
+whether the resulting lemma should be an `Eq` or a `HEq`.
 If generating a proof impossible, then the generator can throw an error.
 This can be due to either an `Eq` proof being impossible
 or due to the lhs/rhs not being defeq to the lhs/rhs of the generated proof,

@@ -3,7 +3,9 @@ Copyright (c) 2024 Joël Riou. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joël Riou
 -/
-import Mathlib.CategoryTheory.Shift.CommShift
+module
+
+public import Mathlib.CategoryTheory.Shift.CommShift
 
 /-!
 # Functors from a category to a category with a shift
@@ -24,6 +26,8 @@ functors `C ⥤ CochainComplex C ℤ` (or `C ⥤ DerivedCategory C` (TODO))
 which sends an object `X : C` to a complex where `X` sits in a single degree.
 
 -/
+
+@[expose] public section
 
 open CategoryTheory Category ZeroObject Limits Functor
 
@@ -108,7 +112,7 @@ structure Hom where
   /-- a family of natural transformations `F.functor a ⟶ G.functor a` -/
   hom (a : A) : F.functor a ⟶ G.functor a
   comm (n a a' : A) (ha' : n + a = a') : (F.shiftIso n a a' ha').hom ≫ hom a =
-    whiskerRight (hom a') (shiftFunctor D n) ≫ (G.shiftIso n a a' ha').hom := by aesop_cat
+    whiskerRight (hom a') (shiftFunctor D n) ≫ (G.shiftIso n a a' ha').hom := by cat_disch
 
 namespace Hom
 
@@ -221,6 +225,7 @@ variable (C A)
 
 /-- The functor `SingleFunctors C D A ⥤ SingleFunctors C E A` given by the postcomposition
 by a functor `G : D ⥤ E` which commutes with the shift. -/
+@[simps]
 def postcompFunctor (G : D ⥤ E) [G.CommShift A] :
     SingleFunctors C D A ⥤ SingleFunctors C E A where
   obj F := F.postcomp G

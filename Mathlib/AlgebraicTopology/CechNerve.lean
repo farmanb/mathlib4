@@ -3,10 +3,12 @@ Copyright (c) 2021 Adam Topaz. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Adam Topaz
 -/
-import Mathlib.AlgebraicTopology.SimplicialObject.Basic
-import Mathlib.CategoryTheory.Comma.Arrow
-import Mathlib.CategoryTheory.Limits.Shapes.WidePullbacks
-import Mathlib.CategoryTheory.Limits.Shapes.FiniteProducts
+module
+
+public import Mathlib.AlgebraicTopology.SimplicialObject.Basic
+public import Mathlib.CategoryTheory.Comma.Arrow
+public import Mathlib.CategoryTheory.Limits.Shapes.WidePullbacks
+public import Mathlib.CategoryTheory.Limits.Shapes.FiniteProducts
 
 /-!
 
@@ -28,6 +30,8 @@ object, when `C` has finite products. We call this `cechNerveTerminalFrom`. When
 `G`-set, which is useful for group cohomology.
 
 -/
+
+@[expose] public section
 
 
 open CategoryTheory Limits
@@ -147,14 +151,14 @@ def cechNerveEquiv (X : SimplicialObject.Augmented C) (F : Arrow C) :
 abbrev cechNerveAdjunction : (Augmented.toArrow : _ ⥤ Arrow C) ⊣ augmentedCechNerve :=
   Adjunction.mkOfHomEquiv
     { homEquiv := cechNerveEquiv
-      homEquiv_naturality_left_symm := by dsimp [cechNerveEquiv]; aesop_cat
+      homEquiv_naturality_left_symm := by dsimp [cechNerveEquiv]; cat_disch
       homEquiv_naturality_right := by
         dsimp [cechNerveEquiv]
         -- The next three lines were not needed before https://github.com/leanprover/lean4/pull/2644
         intro X Y Y' f g
         change equivalenceLeftToRight X Y' (f ≫ g) =
           equivalenceLeftToRight X Y f ≫ augmentedCechNerve.map g
-        aesop_cat
+        cat_disch
     }
 
 end SimplicialObject

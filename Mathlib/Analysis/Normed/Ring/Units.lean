@@ -3,9 +3,11 @@ Copyright (c) 2020 Heather Macbeth. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Heather Macbeth
 -/
-import Mathlib.Analysis.SpecificLimits.Normed
-import Mathlib.Topology.Algebra.Ring.Ideal
-import Mathlib.RingTheory.Ideal.Nonunits
+module
+
+public import Mathlib.Analysis.SpecificLimits.Normed
+public import Mathlib.Topology.Algebra.Ring.Ideal
+public import Mathlib.RingTheory.Ideal.Nonunits
 
 /-!
 # The group of units of a complete normed ring
@@ -27,6 +29,8 @@ unit and `0` if not.  The other major results of this file (notably `NormedRing.
 `NormedRing.inverse_add_norm` and `NormedRing.inverse_add_norm_diff_nth_order`) cover the asymptotic
 properties of `Ring.inverse (x + t)` as `t → 0`.
 -/
+
+@[expose] public section
 
 noncomputable section
 
@@ -157,7 +161,7 @@ is `O(t ^ n)` as `t → 0`. -/
 theorem inverse_add_norm_diff_nth_order (x : Rˣ) (n : ℕ) :
     (fun t : R => inverse (↑x + t) - (∑ i ∈ range n, (-↑x⁻¹ * t) ^ i) * ↑x⁻¹) =O[𝓝 (0 : R)]
       fun t => ‖t‖ ^ n := by
-  refine EventuallyEq.trans_isBigO (.sub (inverse_add_nth_order x n) (.refl _ _)) ?_
+  refine EventuallyEq.trans_isBigO (.fun_sub (inverse_add_nth_order x n) (.refl _ _)) ?_
   simp only [add_sub_cancel_left]
   refine ((isBigO_refl _ _).norm_right.mul (inverse_add_norm x)).trans ?_
   simp only [mul_one, isBigO_norm_left]
