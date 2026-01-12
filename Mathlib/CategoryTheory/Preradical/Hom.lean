@@ -49,13 +49,8 @@ r.ι X            s.ι X
 v                v
 X  ––  𝟙 X  —–>  X
 commutes. -/
-structure Hom (r s : Preradical C) extends (r.F ⟶ s.F) where
+structure Hom (r s : Preradical C) extends (r.toFunctor ⟶ s.toFunctor) where
   w : toNatTrans ≫ s.η = r.η
-
-@[simp, reassoc]
-lemma Hom.app_naturality {r s : Preradical C} (μ : Preradical.Hom r s) {X Y : C} (f : X ⟶ Y) :
-    r.map f ≫ μ.app Y = μ.app X ≫ s.map f :=
-  μ.naturality f
 
 lemma Hom.ext {r s : Preradical C} {f g : Hom r s} (h : f.toNatTrans = g.toNatTrans) :
     f = g := by
@@ -63,17 +58,17 @@ lemma Hom.ext {r s : Preradical C} {f g : Hom r s} (h : f.toNatTrans = g.toNatTr
 
 instance : Category (Preradical C) where
   Hom := Hom
-  id := fun r => Hom.mk (𝟙 r.F) (Category.id_comp r.η)
+  id := fun r => Hom.mk (𝟙 r.toFunctor) (Category.id_comp r.η)
   comp {r s t} μ ν :=
-    Hom.mk (μ.toNatTrans ≫ ν.toNatTrans : r.F ⟶ t.F) (by simp [ν.w, μ.w])
+    Hom.mk (μ.toNatTrans ≫ ν.toNatTrans : r.toFunctor ⟶ t.toFunctor) (by simp [ν.w, μ.w])
   id_comp := by simp
   comp_id := by simp
   assoc := by simp
 
 @[simp]
 lemma Hom.w_app {r s : Preradical C} (μ : r ⟶ s) (X : C) :
-    μ.app X ≫ s.ι X = r.ι X :=
-  congrArg (fun (ν : r.F ⟶ 𝟭 C) => ν.app X) μ.w
+    μ.app X ≫ s.η.app X = r.ι X := by
+  simpa [Preradical.ι] using (congrArg (fun (ν : r.toFunctor ⟶ 𝟭 C) => ν.app X) μ.w)
 
 @[ext]
 lemma ext_hom {r s : Preradical C} {μ ν : r ⟶ s} (h : μ.toNatTrans = ν.toNatTrans) :
@@ -99,18 +94,24 @@ theorem mono_of_mono_app {r s : Preradical C} (μ : r ⟶ s) [h_μ : ∀ X : C, 
     ext X
     exact (cancel_mono (μ.app X)).mp (by simp [← Hom.comp_app, h_comp])
 
-theorem iso_of_iso_app {r s : Preradical C} (μ : r ⟶ s) (h_μ : ∀ X : C, IsIso (μ.app X)) :
-    IsIso μ where
-  out := by
-    let ν : s ⟶ r := {
-      app := fun X => inv (μ.app X)
-      naturality := by
-        intro X Y f
-        exact (cancel_epi (μ.app X)).mp (by simp [← Category.assoc, ← Hom.app_naturality])
-      w := by
-        ext X
-        simp
-    }
-    use ν
-    constructor <;> (ext; simp [ν]; rfl)
+theorem isIso_of_isIso_app {r s : Preradical C} (μ : r ⟶ s) (h_μ : ∀ X : C, IsIso (μ.app X)) :
+    IsIso μ := by
+  letI : IsIso (C := C ⥤ C) (μ.toNatTrans : r.toFunctor ⟶ s.toFunctor) :=
+    NatIso.isIso_of_isIso_app μ.toNatTrans
+  refine ⟨?_, ?_⟩
+  · exact {
+    app := (inv (C := C ⥤ C) (μ.toNatTrans : r.toFunctor ⟶ s.toFunctor)).app
+    naturality := by
+      intro X Y f
+      apply (cancel_epi (μ.app X)).1
+      simp only [NatIso.isIso_inv_app, NatIso.naturality_2', IsIso.hom_inv_id_assoc]
+    w := by
+      ext X
+      simp only [Functor.id_obj, NatTrans.comp_app, NatIso.isIso_inv_app, IsIso.inv_comp_eq,
+        Hom.w_app, ι_eq_app]}
+  · constructor <;>
+      ext X <;>
+      simp only [Hom.comp_app, NatIso.isIso_inv_app, IsIso.hom_inv_id,IsIso.inv_hom_id] <;>
+      rfl
+
 end Preradical
