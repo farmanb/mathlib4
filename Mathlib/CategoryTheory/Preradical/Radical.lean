@@ -89,7 +89,7 @@ theorem isRadical_iff_kills_quotients (r : Preradical C) :
     _ = (μ.app X ≫ r.ι X) ≫ r.π X := by
       rw [NatTrans.comp_app,ι_eq_app]
     _ = μ.app X ≫ r.ι X ≫ r.π X := by rw [Category.assoc]
-    _ = 0 := by rw [ι_comp_π, comp_zero]
+    _ = 0 := by simp only [coker_eq, ι_eq_app, ι_comp_π, comp_zero]
   · intro h
     apply Nonempty.intro
     symm
