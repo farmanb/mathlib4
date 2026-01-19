@@ -37,22 +37,19 @@ category theory, preradical, subfunctor
 @[expose] public section
 
 open CategoryTheory
-open CategoryTheory.Limits
-
-universe u v
-
-variable {C : Type u} [Category.{v} C] [Abelian C]
 
 /-- A preradical on an abelian category `C` is a subfunctor of the identity functor,
 given by a functor `F : C ⥤ C` together with a natural transformation `η : F ⟶ 𝟭 C`
 whose components are monomorphisms. -/
-structure Preradical (C : Type u) [Category.{v} C] [Abelian C] extends (C ⥤ C) where
+structure Preradical (C : Type*) [Category C] [Abelian C] extends (C ⥤ C) where
   /-- The structure morphism of a preradical. -/
   η : toFunctor ⟶ (𝟭 C)
   [mono_app : ∀ X : C, Mono (η.app X)]
 attribute [instance] Preradical.mono_app
 
 namespace Preradical
+
+variable {C : Type*} [Category C] [Abelian C]
 
 instance : Coe (Preradical C) (C ⥤ C) := ⟨fun r => r.toFunctor⟩
 
@@ -64,10 +61,8 @@ def IsIdempotent (r : Preradical C) : Prop := r.toFunctor ⋙ r.toFunctor = r.to
 instance (r : Preradical C) : Mono r.η := NatTrans.mono_of_mono_app (α := r.η)
 
 instance : CoeFun (Preradical C) (fun _ => C → C) := ⟨fun r X => r.obj X⟩
- --⟨fun r X => (r : C ⥤ C).obj X⟩
 
-/-- The structure map of a preradical `r`, viewed as a subobject of the identity,
-at an object `X`. -/
+/-- The structure morphism of the subobject `r X` of `X`. -/
 def ι (r : Preradical C) (X : C) : r X ⟶ X := r.η.app X
 
 instance (r : Preradical C) (X : C) : Mono (r.ι X) := r.mono_app X

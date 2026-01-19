@@ -25,11 +25,8 @@ This file is part of the `Preradical` hierarchy; see
 @[expose] public section
 
 open CategoryTheory
-open CategoryTheory.Limits
 
-universe u v
-
-variable {C : Type u} [Category.{v} C] [Abelian C]
+variable {C : Type*} [Category C] [Abelian C]
 
 namespace Preradical
 

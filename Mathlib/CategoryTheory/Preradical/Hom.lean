@@ -32,11 +32,8 @@ This file is part of the `Preradical` hierarchy; see
 @[expose] public section
 
 open CategoryTheory
-open CategoryTheory.Limits
 
-universe u v
-
-variable {C : Type u} [Category.{v} C] [Abelian C]
+variable {C : Type*} [Category C] [Abelian C]
 
 namespace Preradical
 
@@ -80,21 +77,21 @@ lemma Hom.comp_app {r s t : Preradical C} (μ : r ⟶ s) (ν : Hom s t) (X : C) 
     (μ ≫ ν).app X = μ.app X ≫ ν.app X := by
   rfl
 
-theorem epi_of_epi_app {r s : Preradical C} (μ : r ⟶ s) [h_μ : ∀ X : C, Epi (μ.app X)] :
+theorem epi_of_epi_app {r s : Preradical C} (μ : r ⟶ s) [hμ : ∀ X : C, Epi (μ.app X)] :
     Epi μ where
   left_cancellation := by
-    intro t _ _ h_comp
+    intro t _ _ hcomp
     ext X
-    exact (cancel_epi (μ.app X)).mp (by simp [← Hom.comp_app, h_comp])
+    exact (cancel_epi (μ.app X)).mp (by simp [← Hom.comp_app, hcomp])
 
-theorem mono_of_mono_app {r s : Preradical C} (μ : r ⟶ s) [h_μ : ∀ X : C, Mono (μ.app X)] :
+theorem mono_of_mono_app {r s : Preradical C} (μ : r ⟶ s) [hμ : ∀ X : C, Mono (μ.app X)] :
     Mono μ where
   right_cancellation := by
-    intro t _ _ h_comp
+    intro t _ _ hcomp
     ext X
-    exact (cancel_mono (μ.app X)).mp (by simp [← Hom.comp_app, h_comp])
+    exact (cancel_mono (μ.app X)).mp (by simp [← Hom.comp_app, hcomp])
 
-theorem isIso_of_isIso_app {r s : Preradical C} (μ : r ⟶ s) (h_μ : ∀ X : C, IsIso (μ.app X)) :
+theorem isIso_of_isIso_app {r s : Preradical C} (μ : r ⟶ s) (hμ : ∀ X : C, IsIso (μ.app X)) :
     IsIso μ := by
   letI : IsIso (C := C ⥤ C) (μ.toNatTrans : r.toFunctor ⟶ s.toFunctor) :=
     NatIso.isIso_of_isIso_app μ.toNatTrans

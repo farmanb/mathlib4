@@ -61,8 +61,7 @@ open CategoryTheory.Limits
 
 namespace Preradical
 
-universe u v
-variable {C : Type u} [Category.{v} C] [Abelian C]
+variable {C : Type*} [Category C] [Abelian C]
 
 /-- A preradical `r` is *radical* if `r : r = r`. -/
 def IsRadical (r : Preradical C) : Prop := Nonempty ((Preradical.colon r r) ≅ r)
@@ -81,7 +80,7 @@ theorem isRadical_iff_kills_quotients (r : Preradical C) :
     apply IsZero.of_mono_eq_zero (r.ι (r.coker X))
     apply zero_of_epi_comp (colon_snd r r X)
 
-    obtain ⟨μ,_,h_μ,_⟩ := h
+    obtain ⟨μ,_,hμ,_⟩ := h
     calc
     _ = r.colon_fst r X ≫ r.π X := Eq.symm colon.condition
     _ = (μ.toNatTrans ≫ r.η).app X ≫ r.π X := by

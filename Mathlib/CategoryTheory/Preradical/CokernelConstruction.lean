@@ -28,9 +28,7 @@ This file is part of the `Preradical` hierarchy; see
 open CategoryTheory
 open CategoryTheory.Limits
 
-universe u v
-
-variable {C : Type u} [Category.{v} C] [Abelian C]
+variable {C : Type*} [Category C] [Abelian C]
 
 namespace Preradical
 
@@ -38,8 +36,7 @@ namespace Preradical
 noncomputable
 def cokernel_of (r : Preradical C) : C ⥤ C where
   obj := fun X => cokernel (r.ι X)
-  map := fun {X Y} f =>
-    cokernel.map (r.ι X) (r.ι Y) ((r : C ⥤ C).map f) f (ι_naturality r f)
+  map := fun {X Y} f => cokernel.map (r.ι X) (r.ι Y) ((r : C ⥤ C).map f) f (ι_naturality r f)
   map_id := fun X => coequalizer.hom_ext (by simp)
   map_comp := fun {X Y Z} f g => coequalizer.hom_ext (by simp)
 
