@@ -68,11 +68,11 @@ def ι (r : Preradical C) (X : C) : r X ⟶ X := r.η.app X
 instance (r : Preradical C) (X : C) : Mono (r.ι X) := r.mono_app X
 
 @[simp]
-lemma ι_eq_app (r : Preradical C) (X : C) : r.ι X = r.η.app X := rfl
+lemma ι_def (r : Preradical C) (X : C) : r.ι X = r.η.app X := rfl
 
-@[simp, reassoc]
+/- @[reassoc]
 lemma ι_naturality (r : Preradical C) {X Y : C} (f : X ⟶ Y) :
-    r.ι X ≫ f = (r : C ⥤ C).map f ≫ r.ι Y := by
-  simp only [ι_eq_app, NatTrans.naturality, Functor.id_obj, Functor.id_map]
+    r.map f ≫ r.ι Y = r.ι X ≫ f := by
+  exact r.η.naturality f -/
 
 end Preradical

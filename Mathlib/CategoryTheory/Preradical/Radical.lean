@@ -22,7 +22,7 @@ Following Stenström, a preradical `r` is called radical if `r : r = r`, where
 `r : r` is the colon preradical defined via a pullback.  We encode this as the
 existence of an isomorphism `(r : r) ≅ r`.  We then prove a basic
 characterization of radical preradicals in terms of the vanishing of `r` on the
-quotients `r.coker X`.
+quotients `r.coker.obj X`.
 
 This file is part of the `Preradical` hierarchy; see
 `CategoryTheory/Preradical/Basic.lean` for an overview of the package.
@@ -39,7 +39,7 @@ This file is part of the `Preradical` hierarchy; see
 ## Main results
 
 * `Preradical.isRadical_iff_kills_quotients` :
-  A preradical `r` is radical if and only if `r (r.coker X)` is zero for all
+  A preradical `r` is radical if and only if `r (r.coker.obj X)` is zero for all
   objects `X : C`.
 
 Along the way we construct an auxiliary isomorphism identifying a pullback
@@ -71,24 +71,29 @@ in the sense of `IsRadical`. -/
 structure Radical extends Preradical C where
   colon_stable : IsRadical toPreradical
 
-/-- A preradical `r` is radical if and only if it vanishes on the quotients `r.coker X`
+lemma colon_condition {r s : Preradical C} {X : C} :
+    (r.colon s).ι X ≫ r.π X = (pullback.snd (r.π X) (s.ι (r.coker.obj X))) ≫ s.ι (r.coker.obj X) :=
+  pullback.condition
+
+/-- A preradical `r` is radical if and only if it vanishes on the quotients `r.coker.obj X`
 for all objects `X`. -/
 theorem isRadical_iff_kills_quotients (r : Preradical C) :
-    IsRadical r ↔ ∀ X, IsZero (r (r.coker X)) := by
+    IsRadical r ↔ ∀ X, IsZero (r (r.coker.obj X)) := by
   constructor
   · intro h X
-    apply IsZero.of_mono_eq_zero (r.ι (r.coker X))
-    apply zero_of_epi_comp (colon_snd r r X)
-
+    apply IsZero.of_mono_eq_zero (r.ι (r.coker.obj X))
+    apply zero_of_epi_comp (pullback.snd (r.π X) (r.ι (r.coker.obj X)))
     obtain ⟨μ,_,hμ,_⟩ := h
     calc
-    _ = r.colon_fst r X ≫ r.π X := Eq.symm colon.condition
-    _ = (μ.toNatTrans ≫ r.η).app X ≫ r.π X := by
-      rw [μ.w,colon_fst_eq_η_app]
-    _ = (μ.app X ≫ r.ι X) ≫ r.π X := by
-      rw [NatTrans.comp_app,ι_eq_app]
+    _ = (r.colon r).ι X ≫ r.π X := by
+      have : (r.colon r).ι X ≫ r.π X =
+          (pullback.snd (r.π X) (r.ι (r.coker.obj X))) ≫ r.ι (r.coker.obj X) :=
+        pullback.condition
+      rw [this]
+    _ = (μ.toNatTrans ≫ r.η).app X ≫ r.π X := by simp
+    _ = (μ.app X ≫ r.ι X) ≫ r.π X := by simp
     _ = μ.app X ≫ r.ι X ≫ r.π X := by rw [Category.assoc]
-    _ = 0 := by simp only [coker_eq, ι_eq_app, ι_comp_π, comp_zero]
+    _ = 0 := by simp
   · intro h
     apply Nonempty.intro
     symm

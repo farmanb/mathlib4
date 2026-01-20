@@ -49,10 +49,6 @@ commutes. -/
 structure Hom (r s : Preradical C) extends (r.toFunctor ⟶ s.toFunctor) where
   w : toNatTrans ≫ s.η = r.η
 
-lemma Hom.ext {r s : Preradical C} {f g : Hom r s} (h : f.toNatTrans = g.toNatTrans) :
-    f = g := by
-  cases f; cases g; cases h; rfl
-
 instance : Category (Preradical C) where
   Hom := Hom
   id := fun r => Hom.mk (𝟙 r.toFunctor) (Category.id_comp r.η)
@@ -62,18 +58,21 @@ instance : Category (Preradical C) where
   comp_id := by simp
   assoc := by simp
 
+namespace Hom
+
 @[simp]
-lemma Hom.w_app {r s : Preradical C} (μ : r ⟶ s) (X : C) :
-    μ.app X ≫ s.η.app X = r.ι X := by
-  simpa [Preradical.ι] using (congrArg (fun (ν : r.toFunctor ⟶ 𝟭 C) => ν.app X) μ.w)
+lemma w_app {r s : Preradical C} (μ : r ⟶ s) (X : C) :
+    μ.app X ≫ s.η.app X = r.η.app X := by
+  exact congrArg (fun (ν : r.toFunctor ⟶ 𝟭 C) => ν.app X) μ.w
+  --simpa [Preradical.ι] using (congrArg (fun (ν : r.toFunctor ⟶ 𝟭 C) => ν.app X) μ.w)
 
 @[ext]
-lemma ext_hom {r s : Preradical C} {μ ν : r ⟶ s} (h : μ.toNatTrans = ν.toNatTrans) :
-    μ = ν :=
-  Preradical.Hom.ext h
+lemma ext {r s : Preradical C} {μ ν : r ⟶ s} (h : μ.toNatTrans = ν.toNatTrans) :
+    μ = ν := by
+  cases μ; cases ν; cases h; rfl
 
 @[simp, reassoc]
-lemma Hom.comp_app {r s t : Preradical C} (μ : r ⟶ s) (ν : Hom s t) (X : C) :
+lemma comp_app {r s t : Preradical C} (μ : r ⟶ s) (ν : s ⟶ t) (X : C) :
     (μ ≫ ν).app X = μ.app X ≫ ν.app X := by
   rfl
 
@@ -105,10 +104,12 @@ theorem isIso_of_isIso_app {r s : Preradical C} (μ : r ⟶ s) (hμ : ∀ X : C,
     w := by
       ext X
       simp only [Functor.id_obj, NatTrans.comp_app, NatIso.isIso_inv_app, IsIso.inv_comp_eq,
-        Hom.w_app, ι_eq_app]}
+        Hom.w_app]}
   · constructor <;>
       ext X <;>
       simp only [Hom.comp_app, NatIso.isIso_inv_app, IsIso.hom_inv_id,IsIso.inv_hom_id] <;>
       rfl
+
+end Hom
 
 end Preradical
