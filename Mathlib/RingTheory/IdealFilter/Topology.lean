@@ -45,9 +45,7 @@ namespace IdealFilter
 /-- The additive-group filter basis whose sets are the ideals belonging to the ideal filter `F`. -/
 def addGroupFilterBasis {A : Type*} [Ring A] (F : IdealFilter A) : AddGroupFilterBasis A where
   sets := {(I : Set A) | I ∈ F}
-  nonempty := by
-    obtain ⟨I, hI⟩ := F.nonempty
-    exact ⟨I, ⟨I, hI, rfl⟩⟩
+  nonempty := ⟨_, ⟨_, F.nonempty.choose_spec, rfl⟩⟩
   inter_sets := by
     rintro s t ⟨I, hI, rfl⟩ ⟨J, hJ, rfl⟩
     exact ⟨I ⊓ J, ⟨I ⊓ J, Order.PFilter.inf_mem hI hJ, rfl⟩, fun _ h ↦ h⟩
