@@ -108,7 +108,7 @@ instance instIsTopologicalAddGroup : IsTopologicalAddGroup (WithIdealFilter F) :
 
 /-- A set `s` is a neighbourhood of `a` iff it contains a left-additive coset of some ideal
 `I ∈ F`. -/
-lemma mem_nhds_iff (a : (WithIdealFilter F)) (s : Set (WithIdealFilter F)) :
+lemma mem_nhds_iff {a : (WithIdealFilter F)} {s : Set (WithIdealFilter F)} :
     s ∈ 𝓝 a ↔ ∃ I ∈ F, a +ᵥ idealSet I ⊆ s := by
   constructor
   · intro hs
@@ -120,9 +120,9 @@ lemma mem_nhds_iff (a : (WithIdealFilter F)) (s : Set (WithIdealFilter F)) :
     exact ⟨I, ⟨I, hI, rfl⟩, hIs⟩
 
 /-- A set `s` is a neighbourhood of `0` iff it contains an ideal belonging to `F`. -/
-lemma mem_nhds_zero_iff (s : Set (WithIdealFilter F)) : s ∈ 𝓝 0 ↔
-    ∃ I ∈ F, idealSet I ⊆ s := by
-  simpa [zero_vadd] using mem_nhds_iff 0 s
+lemma mem_nhds_zero_iff {s : Set (WithIdealFilter F)} :
+    s ∈ 𝓝 0 ↔ ∃ I ∈ F, idealSet I ⊆ s := by
+  simpa [zero_vadd] using mem_nhds_iff (a := 0) (s := s)
 
 /-- The topology is linear in the sense that `𝓝 0` has a basis of ideals. -/
 instance instIsLinearTopology : IsLinearTopology (WithIdealFilter F) (WithIdealFilter F) :=
@@ -130,7 +130,7 @@ instance instIsLinearTopology : IsLinearTopology (WithIdealFilter F) (WithIdealF
     (M := (WithIdealFilter F))
     (ι := Ideal A) (S := Ideal A)
     (p := fun I : Ideal A ↦ I ∈ F) (s := fun I : Ideal A ↦ I)
-    ⟨fun t ↦ mem_nhds_zero_iff t⟩
+    ⟨fun _ ↦ mem_nhds_zero_iff⟩
     (fun I a _ hm ↦ Submodule.smul_mem I a hm)
 
 /-- Under `[F.IsUniform]`, `A` is a topological ring with the induced topology. -/
