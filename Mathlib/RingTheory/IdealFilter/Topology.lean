@@ -16,17 +16,16 @@ This file constructs topological structures on a ring from an `IdealFilter` and 
 uniform ideal filters in terms of ring filter bases.
 
 ## Main definitions
-
+* `WithIdealFilter`: Type synonym for a ring that depends on a choice of ideal filter. This can be
+used to assign and infer instances on a ring that depend on an ideal filter.
 * `IdealFilter.addGroupFilterBasis`: the `AddGroupFilterBasis` with sets the ideals of `F`.
-* `IdealFilter.addGroupTopology`: the corresponding topology on `A`.
-* `IdealFilter.ringFilterBasis`: under `F.IsUniform`, the `RingFilterBasis` with sets the ideals of
-`F`.
-* `IdealFilter.ringTopology`: under `F.IsUniform`, the corresponding ring topology on `A`.
+* `IdealFilter.ringFilterBasis`: under `[F.IsUniform]`, the `RingFilterBasis` with sets the ideals
+of `F`.
 
 ## Main statements
 
-* `isUniform_iff_exists_ringFilterBasis`: An `IdealFilter` on a ring `A` is uniform if and only if
-its ideals form a `RingFilterBasis` for `A`.
+* `IdealFilter.isUniform_iff_exists_ringFilterBasis`: An `IdealFilter` on a ring `A` is uniform if
+and only if its ideals form a `RingFilterBasis` for `A`.
 
 ## References
 
@@ -43,13 +42,8 @@ open scoped Pointwise Topology
 
 namespace IdealFilter
 
-variable {A : Type*} [Ring A]
-
-section AddGroup
-variable (F : IdealFilter A)
-
 /-- The additive-group filter basis whose sets are the ideals belonging to the ideal filter `F`. -/
-def addGroupFilterBasis : AddGroupFilterBasis A where
+def addGroupFilterBasis {A : Type*} [Ring A] (F : IdealFilter A) : AddGroupFilterBasis A where
   sets := {(I : Set A) | I ∈ F}
   nonempty := by
     obtain ⟨I, hI⟩ := F.nonempty
@@ -70,43 +64,9 @@ def addGroupFilterBasis : AddGroupFilterBasis A where
     rintro x₀ s ⟨I, hI, rfl⟩
     exact ⟨I, ⟨I, hI, rfl⟩, by simp⟩
 
-/-- The topology on `A` induced by `addGroupFilterBasis`. -/
-abbrev addGroupTopology : TopologicalSpace A := (addGroupFilterBasis F).topology
-
-/-- The topology `F.addGroupTopology` endows `A` with the structure of a topological additive
-group. -/
-theorem isTopologicalAddGroup :
-    letI : TopologicalSpace A := F.addGroupTopology
-    IsTopologicalAddGroup A :=
-  F.addGroupFilterBasis.isTopologicalAddGroup
-
-/-- In `F.addGroupTopology`, `s` is a neighbourhood of `a` iff it contains a
-left-additive coset of some ideal `I ∈ F`. -/
-lemma addGroupTopology_mem_nhds_iff (a : A) (s : Set A) :
-    letI : TopologicalSpace A := F.addGroupTopology
-    s ∈ 𝓝 a ↔ ∃ I ∈ F, a +ᵥ (I : Set A) ⊆ s := by
-  constructor
-  · intro hs
-    rcases ((F.addGroupFilterBasis).nhds_hasBasis a).mem_iff.1 hs with ⟨t, ht, hts⟩
-    rcases ht with ⟨I, hI, rfl⟩
-    exact ⟨I, hI, hts⟩
-  · rintro ⟨I, hI, hIs⟩
-    refine ((F.addGroupFilterBasis).nhds_hasBasis a).mem_iff.2 ?_
-    exact ⟨I, ⟨I, hI, rfl⟩, hIs⟩
-
-/-- In `F.addGroupTopology`, `s` is a neighbourhood of `0` iff it contains an ideal
-belonging to `F`. -/
-lemma addGroupTopology_mem_nhds_zero_iff (s : Set A) :
-    letI : TopologicalSpace A := F.addGroupTopology
-    s ∈ 𝓝 0 ↔ ∃ I ∈ F, (I : Set A) ⊆ s := by
-  simpa [zero_vadd] using F.addGroupTopology_mem_nhds_iff 0 s
-end AddGroup
-
-section Ring
-variable {F : IdealFilter A} (hUniform : F.IsUniform)
-
-/-- Under `F.IsUniform`, the ring filter basis obtained from `addGroupFilterBasis`. -/
-def ringFilterBasis : RingFilterBasis A where
+/-- Under `[F.IsUniform]`, the ring filter basis obtained from `addGroupFilterBasis`. -/
+def ringFilterBasis {A : Type*} [Ring A] {F : IdealFilter A} [F.IsUniform] :
+    RingFilterBasis A where
   sets := F.addGroupFilterBasis.sets
   nonempty := F.addGroupFilterBasis.nonempty
   inter_sets := F.addGroupFilterBasis.inter_sets
@@ -122,58 +82,16 @@ def ringFilterBasis : RingFilterBasis A where
     exact ⟨I, ⟨I, hI, rfl⟩, fun a ha ↦ Ideal.mul_mem_left I x₀ ha⟩
   mul_right' := by
     rintro x₀ U ⟨I, hI, rfl⟩
-    exact ⟨I.colon {x₀}, ⟨I.colon {x₀}, IsUniform.colon_mem hUniform hI x₀, rfl⟩,
+    refine ⟨I.colon {x₀}, ⟨I.colon {x₀}, IsUniform.colon_mem hI x₀, rfl⟩,
       fun a ha ↦ Set.mem_preimage.mpr (Submodule.mem_colon_singleton.mp ha)⟩
-
-/-- Under `F.IsUniform`, the topology on `A` induced by `ringFilterBasis`. -/
-abbrev ringTopology : TopologicalSpace A := (ringFilterBasis hUniform).topology
-
-/-- In `ringTopology`, `s` is a neighbourhood of `a` iff it contains a
-left-additive coset of some ideal `I ∈ F`. -/
-lemma ringTopology_mem_nhds_iff (a : A) (s : Set A) :
-    letI : TopologicalSpace A := ringTopology hUniform
-    s ∈ 𝓝 a ↔ ∃ I ∈ F, a +ᵥ (I : Set A) ⊆ s := by
-  constructor
-  · intro hs
-    rcases ((ringFilterBasis hUniform).nhds_hasBasis a).mem_iff.mp hs with ⟨t, ht, hts⟩
-    rcases ht with ⟨I, hI, rfl⟩
-    exact ⟨I, hI, hts⟩
-  · rintro ⟨I, hI, hIs⟩
-    exact ((ringFilterBasis hUniform).nhds_hasBasis a).mem_iff.mpr ⟨I, ⟨I, hI, rfl⟩, hIs⟩
-
-/-- Under `F.IsUniform`, `ringTopology` endows `A` with the structure of a topological ring. -/
-theorem isTopologicalRing :
-    letI : TopologicalSpace A := ringTopology hUniform
-    IsTopologicalRing A :=
-  (ringFilterBasis hUniform).isTopologicalRing
-
-/-- In `ringTopology`, `s` is a neighbourhood of `0` iff it contains an ideal belonging
-to `F`. -/
-lemma ringTopology_mem_nhds_zero_iff (s : Set A) :
-    letI : TopologicalSpace A := ringTopology hUniform
-    s ∈ 𝓝 0 ↔ ∃ I ∈ F, (I : Set A) ⊆ s := by
-  simpa [zero_vadd] using ringTopology_mem_nhds_iff (hUniform := hUniform) 0 s
-
-/-- Under `F.IsUniform`, the topology `ringTopology` is linear in the sense that `𝓝 0` has a
-basis of ideals. -/
-theorem isLinearTopology_ringTopology :
-    letI : TopologicalSpace A := ringTopology hUniform
-    IsLinearTopology A A := by
-  letI : TopologicalSpace A := ringTopology hUniform
-  exact IsLinearTopology.mk_of_hasBasis' (R := A) (M := A)
-    (ι := Ideal A) (S := Ideal A)
-    (p := fun I : Ideal A ↦ I ∈ F) (s := fun I : Ideal A ↦ I)
-    ⟨fun t ↦ ringTopology_mem_nhds_zero_iff hUniform t⟩
-    (fun I a m hm ↦ Submodule.smul_mem I a hm)
-end Ring
 
 /-- An `IdealFilter` on a ring `A` is uniform if and only if its ideals form a `RingFilterBasis`
 for `A`. -/
-theorem isUniform_iff_exists_ringFilterBasis {F : IdealFilter A} :
+theorem isUniform_iff_exists_ringFilterBasis {A : Type*} [Ring A] {F : IdealFilter A} :
     F.IsUniform ↔ ∃ B : RingFilterBasis A, B.sets = {s : Set A | ∃ I ∈ F, s = I} := by
   constructor
   · intro hF
-    refine ⟨ringFilterBasis hF, ?_⟩
+    refine ⟨F.ringFilterBasis, ?_⟩
     ext s
     constructor <;>
     · intro hs
@@ -189,3 +107,61 @@ theorem isUniform_iff_exists_ringFilterBasis {F : IdealFilter A} :
         exact Order.PFilter.mem_of_le (fun x hx ↦ Submodule.mem_colon_singleton.mpr (hsub hx)) hJ
     }
 end IdealFilter
+
+/-- Type synonym for a ring that depends on a choice of ideal filter. We use this to assign a
+topology generated by the ideal filter. -/
+@[nolint unusedArguments]
+def WithIdealFilter {A : Type*} [Ring A] : IdealFilter A → Type _ := fun _ => A
+
+namespace WithIdealFilter
+
+open IdealFilter
+
+variable {A : Type*} [Ring A] {F : IdealFilter A}
+
+instance instRing : Ring (WithIdealFilter F) := inferInstanceAs (Ring A)
+
+/-- View an ideal of `A` as a subset of `WithIdealFilter F`. -/
+abbrev idealSet (I : Ideal A) : Set (WithIdealFilter F) := (show Ideal (WithIdealFilter F) from I)
+
+/-- The topology on `A` induced by `addGroupFilterBasis`. -/
+instance instTopologicalSpace : TopologicalSpace (WithIdealFilter F) :=
+  F.addGroupFilterBasis.topology
+
+/-- The topology `F.addGroupFilterBasis.topology` endows `A` with the structure of a topological
+additive group. -/
+instance instIsTopologicalAddGroup : IsTopologicalAddGroup (WithIdealFilter F) :=
+  F.addGroupFilterBasis.isTopologicalAddGroup
+
+/-- A set `s` is a neighbourhood of `a` iff it contains a left-additive coset of some ideal
+`I ∈ F`. -/
+lemma mem_nhds_iff (a : (WithIdealFilter F)) (s : Set (WithIdealFilter F)) :
+    s ∈ 𝓝 a ↔ ∃ I ∈ F, a +ᵥ idealSet I ⊆ s := by
+  constructor
+  · intro hs
+    rcases ((F.addGroupFilterBasis).nhds_hasBasis a).mem_iff.1 hs with ⟨t, ht, hts⟩
+    rcases ht with ⟨I, hI, rfl⟩
+    exact ⟨I, hI, hts⟩
+  · rintro ⟨I, hI, hIs⟩
+    refine ((F.addGroupFilterBasis).nhds_hasBasis a).mem_iff.2 ?_
+    exact ⟨I, ⟨I, hI, rfl⟩, hIs⟩
+
+/-- A set `s` is a neighbourhood of `0` iff it contains an ideal belonging to `F`. -/
+lemma mem_nhds_zero_iff (s : Set (WithIdealFilter F)) : s ∈ 𝓝 0 ↔
+    ∃ I ∈ F, idealSet I ⊆ s := by
+  simpa [zero_vadd] using mem_nhds_iff 0 s
+
+/-- The topology is linear in the sense that `𝓝 0` has a basis of ideals. -/
+instance instIsLinearTopology : IsLinearTopology (WithIdealFilter F) (WithIdealFilter F) :=
+  IsLinearTopology.mk_of_hasBasis' (R := (WithIdealFilter F))
+    (M := (WithIdealFilter F))
+    (ι := Ideal A) (S := Ideal A)
+    (p := fun I : Ideal A ↦ I ∈ F) (s := fun I : Ideal A ↦ I)
+    ⟨fun t ↦ mem_nhds_zero_iff t⟩
+    (fun I a _ hm ↦ Submodule.smul_mem I a hm)
+
+/-- Under `[F.IsUniform]`, `A` is a topological ring with the induced topology. -/
+instance instIsTopologicalRing [F.IsUniform] : IsTopologicalRing (WithIdealFilter F) :=
+  F.ringFilterBasis.isTopologicalRing
+
+end WithIdealFilter
