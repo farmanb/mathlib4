@@ -57,13 +57,7 @@ def addGroupFilterBasis {A : Type*} [Ring A] (F : IdealFilter A) : AddGroupFilte
 /-- Under `[F.IsUniform]`, the ring filter basis obtained from `addGroupFilterBasis`. -/
 def ringFilterBasis {A : Type*} [Ring A] {F : IdealFilter A} [F.IsUniform] :
     RingFilterBasis A where
-  sets := F.addGroupFilterBasis.sets
-  nonempty := F.addGroupFilterBasis.nonempty
-  inter_sets := F.addGroupFilterBasis.inter_sets
-  zero' := F.addGroupFilterBasis.zero'
-  add' := F.addGroupFilterBasis.add'
-  neg' := F.addGroupFilterBasis.neg'
-  conj' := F.addGroupFilterBasis.conj'
+  __ := F.addGroupFilterBasis
   mul' := by
     rintro U ⟨I, hI, rfl⟩
     exact ⟨I, ⟨I, hI, rfl⟩, Set.mul_subset_iff.mpr fun _ h₁ _ h₂ ↦ mul_mem h₁ h₂⟩
