@@ -55,6 +55,7 @@ def addGroupFilterBasis {A : Type*} [Ring A] (F : IdealFilter A) : AddGroupFilte
   conj' := by aesop
 
 /-- Under `[F.IsUniform]`, the ring filter basis obtained from `addGroupFilterBasis`. -/
+@[simps! -isSimp sets]
 def ringFilterBasis {A : Type*} [Ring A] {F : IdealFilter A} [F.IsUniform] :
     RingFilterBasis A where
   __ := F.addGroupFilterBasis
@@ -72,24 +73,12 @@ def ringFilterBasis {A : Type*} [Ring A] {F : IdealFilter A} [F.IsUniform] :
 /-- An `IdealFilter` on a ring `A` is uniform if and only if its ideals form a `RingFilterBasis`
 for `A`. -/
 theorem isUniform_iff_exists_ringFilterBasis {A : Type*} [Ring A] {F : IdealFilter A} :
-    F.IsUniform ↔ ∃ B : RingFilterBasis A, B.sets = {s : Set A | ∃ I ∈ F, s = I} := by
-  constructor
-  · intro hF
-    refine ⟨F.ringFilterBasis, ?_⟩
-    ext s
-    constructor <;>
-    · intro hs
-      rcases hs with ⟨I, hI, rfl⟩
-      exact ⟨I, hI, rfl⟩
-  · rintro ⟨B, hB⟩
-    exact {
-      colon_mem := by
-        intro I hI a
-        have hIB : (I : Set A) ∈ B.sets := by simpa [hB]
-        rcases RingFilterBasis.mul_right B a hIB with ⟨V, hbasis : V ∈ B.sets, hsub⟩
-        rcases (by simpa [hB] using hbasis) with ⟨J, hJ, rfl⟩
-        exact Order.PFilter.mem_of_le (fun x hx ↦ Submodule.mem_colon_singleton.mpr (hsub hx)) hJ
-    }
+    F.IsUniform ↔ ∃ B : RingFilterBasis A, B.sets = {(I : Set A) | I ∈ F} := by
+  refine ⟨fun _ ↦ ⟨F.ringFilterBasis, rfl⟩, fun ⟨B, hB⟩ ↦ ⟨fun {I} hI a ↦ ?_⟩⟩
+  obtain ⟨V, hbasis, hsub⟩ := B.mul_right a (U := I) (hB.ge (by simpa))
+  obtain ⟨J, hJ, rfl⟩ := hB.le hbasis
+  exact Order.PFilter.mem_of_le (fun x hx ↦ by simpa using (hsub hx)) hJ
+
 end IdealFilter
 
 /-- Type synonym for a ring that depends on a choice of ideal filter. We use this to assign a
