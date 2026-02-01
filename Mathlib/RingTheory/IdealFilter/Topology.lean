@@ -95,7 +95,7 @@ variable {A : Type*} [Ring A] {F : IdealFilter A}
 instance instRing : Ring (WithIdealFilter F) := inferInstanceAs (Ring A)
 
 /-- View an ideal of `A` as a subset of `WithIdealFilter F`. -/
-abbrev idealSet (I : Ideal A) : Set (WithIdealFilter F) := (show Ideal (WithIdealFilter F) from I)
+abbrev idealSet (I : Ideal A) : Set (WithIdealFilter F) := (I : Set A)
 
 /-- The topology on `A` induced by `addGroupFilterBasis`. -/
 instance instTopologicalSpace : TopologicalSpace (WithIdealFilter F) :=
