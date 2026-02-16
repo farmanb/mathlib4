@@ -45,7 +45,7 @@ instance : Preorder (Preradical C) where
   lt_iff_le_not_ge := by simp
 
 /-- The relation `≤` is weakly antisymmetric. -/
-def iso_of_le_antisymm (r s : Preradical C) (hrs : r ≤ s) (hsr : s ≤ r) :
+theorem iso_of_le_antisymm (r s : Preradical C) (hrs : r ≤ s) (hsr : s ≤ r) :
    Nonempty (r ≅ s) := by
   obtain ⟨μ⟩ := hrs
   obtain ⟨ν⟩ := hsr
