@@ -25,8 +25,11 @@ X  ––  𝟙 X  —–>  X
 
 commutes.
 
-This file is part of the `Preradical` hierarchy; see
-`CategoryTheory/Preradical/Basic.lean` for an overview of the entire package.
+## References
+
+* [Bo Stenström, Rings and Modules of Quotients][stenstrom1971]
+* [Bo Stenström, *Rings of Quotients*][stenstrom1975]
+
 -/
 
 @[expose] public section

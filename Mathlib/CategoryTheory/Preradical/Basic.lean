@@ -24,7 +24,7 @@ whose components are monomorphisms.
 
 ## Tags
 
-category theory, preradical, subfunctor
+category theory, preradical, subfunctor, torsion theory
 -/
 
 @[expose] public section
@@ -42,25 +42,25 @@ attribute [instance] Preradical.mono_app
 
 namespace Preradical
 
-variable {C : Type*} [Category C] [Abelian C]
+variable {C : Type*} [Category C] [Abelian C] (r : Preradical C)
 
 instance : Coe (Preradical C) (C ⥤ C) := ⟨fun r => r.toFunctor⟩
 
 /-- A preradical `r` is idempotent if `r ⋙ r = r` as endofunctors. -/
-def IsIdempotent (r : Preradical C) : Prop := r.toFunctor ⋙ r.toFunctor = r.toFunctor
+def IsIdempotent (r : Preradical C) : Type _ := r.toFunctor ⋙ r.toFunctor ≅ r.toFunctor
 
 /-- The natural transformation `η : r.F ⟶ 𝟭 (C)` is always `Mono` since each component
 `η.app X : r X ⟶ X` is mono. -/
-instance (r : Preradical C) : Mono r.η := NatTrans.mono_of_mono_app r.η
+instance : Mono r.η := NatTrans.mono_of_mono_app r.η
 
 instance : CoeFun (Preradical C) (fun _ => C → C) := ⟨fun r X => r.obj X⟩
 
 /-- The structure morphism of the subobject `r X` of `X`. -/
-def ι (r : Preradical C) (X : C) : r X ⟶ X := r.η.app X
+def ι (X : C) : r X ⟶ X := r.η.app X
 
-instance (r : Preradical C) (X : C) : Mono (r.ι X) := r.mono_app X
+instance (X : C) : Mono (r.ι X) := r.mono_app X
 
 @[simp]
-lemma ι_def (r : Preradical C) (X : C) : r.ι X = r.η.app X := rfl
+lemma ι_def (X : C) : r.ι X = r.η.app X := rfl
 
 end Preradical
