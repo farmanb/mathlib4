@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2025 Blake Farman. All rights reserved.
+Copyright (c) 2026 Blake Farman. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Blake Farman
 -/
@@ -8,9 +8,8 @@ public import Mathlib.CategoryTheory.Abelian.Basic
 /-!
 # Preradicals
 
-A **preradical** on an abelian category `C` is a subfunctor of the identity functor,
-given by a functor `F : C ⥤ C` together with a natural transformation `η : F ⟶ 𝟭 C`
-whose components are monomorphisms.
+A **preradical** on an abelian category `C` is a subfunctor `r : C ⥤ C` of the identity functor,
+together with a natural transformation `η : r ⟶ 𝟭 C` whose components are monomorphisms.
 
 ## Main definitions
 
@@ -24,7 +23,7 @@ whose components are monomorphisms.
 
 ## Tags
 
-category theory, preradical, subfunctor, torsion theory
+category theory, preradical, torsion theory
 -/
 
 @[expose] public section
@@ -46,8 +45,8 @@ variable {C : Type*} [Category C] [Abelian C] (r : Preradical C)
 
 instance : Coe (Preradical C) (C ⥤ C) := ⟨fun r => r.toFunctor⟩
 
-/-- A preradical `r` is idempotent if `r ⋙ r = r` as endofunctors. -/
-def IsIdempotent (r : Preradical C) : Type _ := r.toFunctor ⋙ r.toFunctor ≅ r.toFunctor
+/-- A preradical `r` is idempotent if `r ⋙ r ≅ r` as endofunctors. -/
+def IsIdempotent : Prop := Nonempty (r.toFunctor ⋙ r.toFunctor ≅ r.toFunctor)
 
 /-- The natural transformation `η : r.F ⟶ 𝟭 (C)` is always `Mono` since each component
 `η.app X : r X ⟶ X` is mono. -/

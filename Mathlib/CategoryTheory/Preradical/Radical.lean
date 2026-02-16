@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2024 Blake Farman. All rights reserved.
+Copyright (c) 2026 Blake Farman. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Blake Farman
 -/
@@ -8,8 +8,6 @@ module
 public import Mathlib.CategoryTheory.Preradical.Basic
 public import Mathlib.CategoryTheory.Preradical.Hom
 public import Mathlib.CategoryTheory.Preradical.Colon
-public import Mathlib.CategoryTheory.Limits.Shapes.ZeroObjects
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
 
 /-!
 # Radicals of preradicals
@@ -20,14 +18,14 @@ structure.
 
 Following Stenström, a preradical `r` is called radical if `r : r = r`, where
 `r : r` is the colon preradical defined via a pullback.  We encode this as the
-existence of an isomorphism `(r : r) ≅ r`.  We then prove a basic
+existence of an isomorphism `r.colon r ≅ r`.  We then prove a basic
 characterization of radical preradicals in terms of the vanishing of `r` on the
 quotients `r.quotient.obj X`.
 
 ## Main definitions
 
 * `Preradical.IsRadical r` :
-  The proposition that a preradical `r` is radical, i.e. that `(r : r) ≅ r`.
+  The proposition that a preradical `r` is radical, i.e. that `(r.colon r) ≅ r`.
 
 * `Preradical.Radical C` :
   The type of radicals on `C`, given by a preradical together with a proof
@@ -61,7 +59,7 @@ namespace Preradical
 
 variable {C : Type*} [Category C] [Abelian C]
 
-/-- A preradical `r` is *radical* if `r : r = r`. -/
+/-- A preradical `r` is *radical* if `r.colon r = r`. -/
 def IsRadical (r : Preradical C) : Prop := Nonempty ((Preradical.colon r r) ≅ r)
 
 /-- A *radical* on `C` is a preradical together with a proof that it is radical
@@ -69,14 +67,9 @@ in the sense of `IsRadical`. -/
 structure Radical extends Preradical C where
   colon_stable : IsRadical toPreradical
 
-lemma colon_condition {r s : Preradical C} {X : C} :
-    (r.colon s).ι X ≫ r.π X =
-      (pullback.snd (r.π X) (s.ι (r.quotient.obj X))) ≫ s.ι (r.quotient.obj X) :=
-  pullback.condition
-
 /-- A preradical `r` is radical if and only if it vanishes on the quotients `r.quotient.obj X`
 for all objects `X`. -/
-theorem isRadical_iff_kills_quotients (r : Preradical C) :
+theorem isRadical_iff_kills_quotients {r : Preradical C} :
     IsRadical r ↔ ∀ X, IsZero (r (r.quotient.obj X)) := by
   constructor
   · intro h X
@@ -84,15 +77,10 @@ theorem isRadical_iff_kills_quotients (r : Preradical C) :
     apply zero_of_epi_comp (pullback.snd (r.π X) (r.ι (r.quotient.obj X)))
     obtain ⟨μ,_,hμ,_⟩ := h
     calc
-    _ = (r.colon r).ι X ≫ r.π X := by
-      have : (r.colon r).ι X ≫ r.π X =
-          (pullback.snd (r.π X) (r.ι (r.quotient.obj X))) ≫ r.ι (r.quotient.obj X) :=
-        pullback.condition
-      rw [this]
-    _ = (μ.toNatTrans ≫ r.η).app X ≫ r.π X := by simp
-    _ = (μ.app X ≫ r.ι X) ≫ r.π X := by simp
-    _ = μ.app X ≫ r.ι X ≫ r.π X := by rw [Category.assoc]
-    _ = 0 := by simp
+      _ = (r.colon r).η.app X ≫ (cokernel.π r.η).app X := colon_condition.symm
+      _ = μ.app X ≫ r.η.app X ≫ (cokernel.π r.η).app X := by
+        rw [← Category.assoc, μ.w_app X]
+      _= 0 := by simp
   · intro h
     apply Nonempty.intro
     symm
