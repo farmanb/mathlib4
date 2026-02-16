@@ -19,7 +19,7 @@ we prove that in a list with alternating `true`s and `false`s, the number of `tr
 the number of `false`s by at most one. We provide several versions of these statements.
 -/
 
-@[expose] public section
+public section
 
 
 namespace List
@@ -53,8 +53,7 @@ theorem IsChain.count_not_cons :
   | b, x :: l, h => by
     obtain rfl : b = !x := Bool.eq_not_iff.2 (rel_of_isChain_cons_cons h)
     rw [Bool.not_not, count_cons_self, count_cons_of_ne x.not_ne_self.symm,
-      IsChain.count_not_cons (isChain_cons_of_isChain_cons_cons h), length, add_assoc,
-      Nat.mod_two_add_succ_mod_two]
+      IsChain.count_not_cons h.of_cons, length, add_assoc, Nat.mod_two_add_succ_mod_two]
 
 @[deprecated (since := "2025-09-21")]
 alias Chain.count_not := IsChain.count_not_cons
@@ -81,9 +80,9 @@ theorem count_not_le_count_add_one (hl : IsChain (· ≠ ·) l) (b : Bool) :
   · exact zero_le _
   obtain rfl | rfl : b = x ∨ b = !x := by simp only [Bool.eq_not_iff, em]
   · rw [count_cons_of_ne b.not_ne_self.symm, count_cons_self, hl.count_not_cons, add_assoc]
-    cutsat
+    lia
   · rw [Bool.not_not, count_cons_self, count_cons_of_ne x.not_ne_self.symm, hl.count_not_cons]
-    cutsat
+    lia
 
 theorem count_false_le_count_true_add_one (hl : IsChain (· ≠ ·) l) :
     count false l ≤ count true l + 1 :=
@@ -97,6 +96,9 @@ theorem two_mul_count_bool_of_even (hl : IsChain (· ≠ ·) l) (h2 : Even (leng
     2 * count b l = length l := by
   rw [← count_not_add_count l b, hl.count_not_eq_count h2, two_mul]
 
+-- TODO: is there a nice way to fix the linter? simp is run on 8 goals at once,
+-- with slightly different simp sets
+set_option linter.flexible false in
 theorem two_mul_count_bool_eq_ite (hl : IsChain (· ≠ ·) l) (b : Bool) :
     2 * count b l =
       if Even (length l) then length l else

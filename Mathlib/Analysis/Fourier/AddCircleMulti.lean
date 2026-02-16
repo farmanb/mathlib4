@@ -20,13 +20,11 @@ Fourier series if `f` is continuous and the sequence of its Fourier coefficients
 
 noncomputable section
 
-open scoped BigOperators ComplexConjugate ENNReal
+open scoped ComplexConjugate ENNReal
 
 open Set Algebra Submodule MeasureTheory
 
 -- some instances for unit circle
-
-attribute [local instance] Real.fact_zero_lt_one
 
 /-- In this file we normalise the measure on `ℝ / ℤ` to have total volume 1. -/
 local instance : MeasureSpace UnitAddCircle := ⟨AddCircle.haarAddCircle⟩
@@ -174,7 +172,7 @@ theorem orthonormal_mFourier : Orthonormal ℂ (mFourierLp (d := d) 2) := by
   intro m n
   simp only [ContinuousMap.inner_toLp, ← mFourier_neg, ← mFourier_add]
   split_ifs with h
-  · simpa only [h, add_neg_cancel, mFourier_zero, measureReal_univ_eq_one, one_smul] using
+  · simpa only [h, add_neg_cancel, mFourier_zero, probReal_univ, one_smul] using
       integral_const (α := UnitAddTorus d) (μ := volume) (1 : ℂ)
   rw [mFourier, ContinuousMap.coe_mk, MeasureTheory.integral_fintype_prod_volume_eq_prod]
   obtain ⟨i, hi⟩ := Function.ne_iff.mp h
@@ -186,7 +184,7 @@ end Lp
 
 section fourierCoeff
 
-variable {E : Type} [NormedAddCommGroup E] [NormedSpace ℂ E]
+variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℂ E]
 
 /-- The `n`-th Fourier coefficient of a function `UnitAddTorus d → E`, for `E` a complete normed
 `ℂ`-vector space, defined as the integral over `UnitAddTorus d` of `mFourier (-n) t • f t`. -/

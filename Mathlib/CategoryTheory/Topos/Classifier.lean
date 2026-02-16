@@ -6,7 +6,6 @@ Authors: Charlie Conneen, Pablo Donato, Klaus Gy
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.RegularMono
-public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
 public import Mathlib.CategoryTheory.Functor.ReflectsIso.Balanced
 public import Mathlib.CategoryTheory.Subobject.Presheaf
 
@@ -125,8 +124,7 @@ def mkOfTerminalΩ₀
 instance {c : Classifier C} : ∀ Y : C, Unique (Y ⟶ c.Ω₀) := fun Y =>
   { default := c.χ₀ Y,
     uniq f :=
-      have : f ≫ c.truth = c.χ₀ Y ≫ c.truth :=
-        by calc
+      have : f ≫ c.truth = c.χ₀ Y ≫ c.truth := calc
           _ = c.χ (𝟙 Y) := c.uniq (𝟙 Y) (of_horiz_isIso_mono { })
           _ = c.χ₀ Y ≫ c.truth := by simp [← (c.isPullback (𝟙 Y)).w]
       Mono.right_cancellation _ _ this }
@@ -203,8 +201,10 @@ instance truthIsSplitMono : IsSplitMono (truth C) :=
   Classifier.isTerminalΩ₀.isSplitMono_from _
 
 /-- `truth C` is a regular monomorphism (because it is split). -/
-noncomputable instance truthIsRegularMono : RegularMono (truth C) :=
+noncomputable def truthIsRegularMono : RegularMono (truth C) :=
   RegularMono.ofIsSplitMono (truth C)
+
+instance : IsRegularMono (truth C) := ⟨⟨truthIsRegularMono⟩⟩
 
 /-- The following diagram
 ```
@@ -223,7 +223,8 @@ It also follows that `C` is a balanced category.
 -/
 instance isRegularMonoCategory : IsRegularMonoCategory C where
   regularMonoOfMono :=
-    fun m => ⟨regularOfIsPullbackFstOfRegular (isPullback_χ m).w (isPullback_χ m).isLimit⟩
+    fun m => ⟨⟨regularOfIsPullbackFstOfRegular truthIsRegularMono
+      (isPullback_χ m).w (isPullback_χ m).isLimit⟩⟩
 
 /-- If the source of a faithful functor has a subobject classifier, the functor reflects
   isomorphisms. This holds for any balanced category.
@@ -334,10 +335,10 @@ variable {U X : C} (m : U ⟶ X) [Mono m]
 def χ : X ⟶ Ω := h.homEquiv.symm (Subobject.mk m)
 
 /-- `h.iso m` is the isomorphism between `m` and the pullback of `Ω₀`
-along the characteristic map of `m`. -/
-noncomputable def iso : MonoOver.mk' m ≅
+    along the characteristic map of `m`. -/
+noncomputable def iso : MonoOver.mk m ≅
     Subobject.representative.obj ((Subobject.pullback (h.χ m)).obj h.Ω₀) :=
-  (Subobject.representativeIso (.mk' m)).symm ≪≫ Subobject.representative.mapIso
+  (Subobject.representativeIso (.mk m)).symm ≪≫ Subobject.representative.mapIso
     (eqToIso (h.pullback_homEquiv_symm_obj_Ω₀ (.mk m)).symm)
 
 /-- `h.π m` is the first projection in the following pullback square:
@@ -352,21 +353,23 @@ noncomputable def iso : MonoOver.mk' m ≅
     ```
 -/
 noncomputable def π : U ⟶ Subobject.underlying.obj h.Ω₀ :=
-  (h.iso m).hom.left ≫ Subobject.pullbackπ (h.χ m) h.Ω₀
+  (h.iso m).hom.hom.left ≫ Subobject.pullbackπ (h.χ m) h.Ω₀
 
 @[reassoc (attr := simp)]
 lemma iso_inv_left_π :
-    (h.iso m).inv.left ≫ h.π m = Subobject.pullbackπ (h.χ m) h.Ω₀ := by
+    (h.iso m).inv.hom.left ≫ h.π m = Subobject.pullbackπ (h.χ m) h.Ω₀ := by
   dsimp only [π]
   rw [← Over.comp_left_assoc]
   convert Category.id_comp _ using 2
-  exact (MonoOver.forget _ ⋙ Over.forget _ ).congr_map (h.iso m).inv_hom_id
+  exact (MonoOver.forget _ ⋙ Over.forget _).congr_map (h.iso m).inv_hom_id
 
 @[reassoc (attr := simp)]
-lemma iso_inv_left_comp :
-    (h.iso m).inv.left ≫ m =
+lemma iso_inv_hom_left_comp :
+    (h.iso m).inv.hom.left ≫ m =
       ((Subobject.pullback (h.χ m)).obj h.Ω₀).arrow :=
   MonoOver.w (h.iso m).inv
+
+@[deprecated (since := "2025-12-18")] alias iso_inv_left_comp := iso_inv_hom_left_comp
 
 lemma isPullback {U X : C} (m : U ⟶ X) [Mono m] :
     IsPullback m (h.π m) (h.χ m) h.Ω₀.arrow := by
