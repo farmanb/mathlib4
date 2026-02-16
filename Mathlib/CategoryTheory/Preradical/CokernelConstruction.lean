@@ -52,7 +52,6 @@ lemma π_naturality {X Y : C} (f : X ⟶ Y) :
     f ≫ (cokernel.π r.η).app Y = (cokernel.π r.η).app X ≫ r.quotient.map f := by
   exact (cokernel.π r.η).naturality f
 
-/-- This lemma allows simp to automatically prove `r.ι X ≫ r.π X = 0`. -/
 @[simp, reassoc]
 lemma π_app_comp_map_η (X : C) : (cokernel.π r.η).app (r X) ≫ r.quotient.map (r.η.app X) = 0 := by
   rw [← (cokernel.π r.η).naturality (r.η.app X)]

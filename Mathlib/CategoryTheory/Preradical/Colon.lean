@@ -19,8 +19,7 @@ canonical projection `r.π X : X ⟶ r.quotient.obj X` along the inclusion
 
 ## Main definitions
 
-* `Preradical.colon r s : Preradical C` : The colon preradical, given objectwise by
-  `colon_obj r s` and inclusion `colon_fst r s`.
+* `Preradical.colon r s : Preradical C` : The colon preradical `r : s` of Stenstrom.
 * `toColon r s : r ⟶ r.colon s` : The canonical inclusion of the left radical into the colon.
 
 ## Main results
@@ -73,7 +72,7 @@ def colon : Preradical C where
   mono_app := by infer_instance
 
 lemma colon_condition {r s : Preradical C} {X : C} : (r.colon s).η.app X ≫ (cokernel.π r.η).app X =
-      (pullback.snd (r.π X) (s.ι (r.quotient.obj X))) ≫ s.ι (r.quotient.obj X) :=
+      (pullback.snd (r.π X) (s.η.app (r.quotient.obj X))) ≫ s.η.app (r.quotient.obj X) :=
   pullback.condition
 
 /-- There is a morphism `r ⟶ (r.colon s)` whose components are the morphisms induced by the

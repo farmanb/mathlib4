@@ -45,10 +45,10 @@ instance : Preorder (Preradical C) where
   lt_iff_le_not_ge := by simp
 
 /-- The relation `≤` is weakly antisymmetric. -/
-theorem iso_of_antisymm (r s : Preradical C) (r_le_s : r ≤ s) (s_le_r : s ≤ r) :
-    Nonempty (r ≅ s) := by
-  obtain ⟨μ⟩ := r_le_s
-  obtain ⟨ν⟩ := s_le_r
+def iso_of_le_antisymm (r s : Preradical C) (hrs : r ≤ s) (hsr : s ≤ r) :
+   Nonempty (r ≅ s) := by
+  obtain ⟨μ⟩ := hrs
+  obtain ⟨ν⟩ := hsr
   have h₁ : μ ≫ ν = 𝟙 r  := by
     ext X
     exact (cancel_mono_id (r.ι X)).mp (by simp)
@@ -56,4 +56,8 @@ theorem iso_of_antisymm (r s : Preradical C) (r_le_s : r ≤ s) (s_le_r : s ≤ 
     ext X
     exact (cancel_mono_id (s.ι X)).mp (by simp)
   exact ⟨Iso.mk μ ν h₁ h₂⟩
+
+@[simp]
+lemma le_iff {r s : Preradical C} : r ≤ s ↔ Nonempty (r ⟶ s) := Iff.rfl
+
 end Preradical
