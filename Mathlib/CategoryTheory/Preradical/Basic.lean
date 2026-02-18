@@ -5,16 +5,21 @@ Authors: Blake Farman
 -/
 module
 public import Mathlib.CategoryTheory.Abelian.Basic
+public import Mathlib.CategoryTheory.Subobject.MonoOver
+public import Mathlib.CategoryTheory.Limits.FunctorCategory.EpiMono
+
 /-!
 # Preradicals
 
-A **preradical** on an abelian category `C` is a subfunctor `r : C ⥤ C` of the identity functor,
-together with a natural transformation `η : r ⟶ 𝟭 C` whose components are monomorphisms.
+A **preradical** on an abelian category `C` is a monomorphism in the functor category `C ⥤ C`
+with codomain `𝟭 C`, i.e. an element of `MonoOver (𝟭 C)`.
 
 ## Main definitions
 
-* `Preradical C`: the type of preradicals on `C`.
-* `Preradical.ι r X`: the structure morphism `r X ⟶ X`.
+* `Preradical C`: The type of preradicals on `C`.
+* `Preradical.r`: The underlying endofunctor of a `Preradical`.
+* `Preradical.ι`: The structure morphism of a `Preradical`.
+* `Preradical.IsIdempotent`: The predicate expressing idempotence.
 
 ## References
 
@@ -28,38 +33,46 @@ category theory, preradical, torsion theory
 
 @[expose] public section
 
-open CategoryTheory
+universe v u
 
-/-- A preradical on an abelian category `C` is a subfunctor of the identity functor,
-given by a functor `F : C ⥤ C` together with a natural transformation `η : F ⟶ 𝟭 C`
-whose components are monomorphisms. -/
-structure Preradical (C : Type*) [Category C] [Abelian C] extends (C ⥤ C) where
-  /-- The structure morphism of a preradical. -/
-  η : toFunctor ⟶ (𝟭 C)
-  [mono_app : ∀ X : C, Mono (η.app X)]
-attribute [instance] Preradical.mono_app
+namespace CategoryTheory.Abelian
+
+variable {C : Type u} [Category.{v} C] [Abelian C]
+
+variable (C) in
+/-- A preradical on an abelian category `C` is a monomorphism in `C ⥤ C` with codomain `𝟭 C`. -/
+abbrev Preradical := MonoOver (𝟭 C)
 
 namespace Preradical
 
-variable {C : Type*} [Category C] [Abelian C] (r : Preradical C)
+variable (Φ : Preradical C)
 
-instance : Coe (Preradical C) (C ⥤ C) := ⟨fun r => r.toFunctor⟩
+/-- The underlying endofunctor `r : C ⥤ C` of a preradical `Φ`. -/
+abbrev r : C ⥤ C := Φ.obj.left
 
-/-- A preradical `r` is idempotent if `r ⋙ r ≅ r` as endofunctors. -/
-def IsIdempotent : Prop := Nonempty (r.toFunctor ⋙ r.toFunctor ≅ r.toFunctor)
+/-- The structure morphism `Φ.r ⟶ 𝟭 C` of a preradical `Φ`. -/
+abbrev ι : Φ.r ⟶ 𝟭 C := Φ.obj.hom
 
-/-- The natural transformation `η : r.F ⟶ 𝟭 (C)` is always `Mono` since each component
-`η.app X : r X ⟶ X` is mono. -/
-instance : Mono r.η := NatTrans.mono_of_mono_app r.η
+@[simp, reassoc]
+lemma r_map_ι_app (X : C) : Φ.r.map (Φ.ι.app X) = Φ.ι.app (Φ.r.obj X) := by
+  rw [← cancel_mono (Φ.ι.app X)]
+  exact Φ.ι.naturality (Φ.ι.app X)
 
-instance : CoeFun (Preradical C) (fun _ => C → C) := ⟨fun r X => r.obj X⟩
+/-- A preradical `Φ` is idempotent if `Φ.r ⋙ Φ.r ≅ Φ.r`. -/
+class IsIdempotent : Prop where
+  isIso_whiskerLeft_r_ι : IsIso (Functor.whiskerLeft Φ.r Φ.ι)
 
-/-- The structure morphism of the subobject `r X` of `X`. -/
-def ι (X : C) : r X ⟶ X := r.η.app X
+attribute [instance] IsIdempotent.isIso_whiskerLeft_r_ι
 
-instance (X : C) : Mono (r.ι X) := r.mono_app X
+instance [Φ.IsIdempotent] (X : C) :
+    IsIso (Φ.ι.app (Φ.r.obj X)) :=
+  inferInstanceAs (IsIso ((Functor.whiskerLeft Φ.r Φ.ι).app X))
 
-@[simp]
-lemma ι_def (X : C) : r.ι X = r.η.app X := rfl
+instance [Φ.IsIdempotent] (X : C) :
+    IsIso (Φ.r.map (Φ.ι.app X)) := by
+  rw [r_map_ι_app]
+  infer_instance
 
 end Preradical
+
+end CategoryTheory.Abelian
