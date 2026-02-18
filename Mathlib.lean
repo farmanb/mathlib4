@@ -3044,8 +3044,6 @@ public import Mathlib.CategoryTheory.Preadditive.Yoneda.Projective
 public import Mathlib.CategoryTheory.Preradical.Basic
 public import Mathlib.CategoryTheory.Preradical.CokernelConstruction
 public import Mathlib.CategoryTheory.Preradical.Colon
-public import Mathlib.CategoryTheory.Preradical.Hom
-public import Mathlib.CategoryTheory.Preradical.Preorder
 public import Mathlib.CategoryTheory.Preradical.Radical
 public import Mathlib.CategoryTheory.Presentable.Adjunction
 public import Mathlib.CategoryTheory.Presentable.Basic
