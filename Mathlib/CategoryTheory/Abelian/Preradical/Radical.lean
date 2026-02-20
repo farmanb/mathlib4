@@ -17,8 +17,7 @@ structure.
 
 Following Stenström, a preradical `Φ` is called radical if it coincides with its self colon.
 We encode this as the existence of an isomorphism `Φ.colon Φ ≅ Φ`.  We then prove a basic
-characterization of radical preradicals in terms of the vanishing of `Φ` on the quotients
-`Φ.quotient.obj X`.
+characterization of radical preradicals in terms of the vanishing of `Φ.r` on `Φ.quotient`.
 
 ## Main definitions
 
@@ -32,8 +31,7 @@ characterization of radical preradicals in terms of the vanishing of `Φ` on the
 ## Main results
 
 * `Preradical.isRadical_iff_isZero_whisker` :
-  A preradical `Φ` is radical if and only if `Φ.r.obj (Φ.quotient.obj X)` is the zero object for all
-  objects `X : C`.
+  A preradical `Φ` is radical if and only if `Φ.quotient ⋙ Φ.r` is the zero object.
 
 ## References
 
