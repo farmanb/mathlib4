@@ -110,7 +110,7 @@ instance (P : ObjectProperty C) : P.leftOrthogonal.IsClosedUnderExtensions where
     let t : CokernelCofork s.f := CokernelCofork.ofπ k (hX₁ (s.f ≫ k) hZ)
     have hl : hs.gIsCokernel.desc t = 0 := hX₃ _ hZ
     have hfac : s.g ≫ hs.gIsCokernel.desc t = k := hs.gIsCokernel.fac t WalkingParallelPair.one
-    rw [← hfac, hl, comp_zero]
+    simp [← hfac, hl, comp_zero]
 
 /-- The left orthogonal of a property of objects is closed under colimits of any shape. -/
 instance (P : ObjectProperty C) {J : Type u'} [Category.{v'} J] :
