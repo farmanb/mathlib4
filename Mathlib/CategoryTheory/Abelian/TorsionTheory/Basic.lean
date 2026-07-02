@@ -5,7 +5,10 @@ Authors: Blake Farman
 -/
 module
 public import Mathlib.CategoryTheory.Abelian.Basic
+public import Mathlib.CategoryTheory.Abelian.Opposite
+public import Mathlib.CategoryTheory.Limits.Shapes.Opposites.Products
 public import Mathlib.CategoryTheory.ObjectProperty.Orthogonal
+public import Mathlib.CategoryTheory.ObjectProperty.Opposite
 public import Mathlib.CategoryTheory.ObjectProperty.EpiMono
 public import Mathlib.CategoryTheory.ObjectProperty.Extensions
 public import Mathlib.CategoryTheory.ObjectProperty.ColimitsOfShape
@@ -27,12 +30,17 @@ and its objects *torsion-free objects*.
   `T` and `F` is a torsion theory on `C`.
 * `CategoryTheory.Abelian.IsTorsionClass P`: the statement that `P` is the torsion class of
   some torsion theory on `C`.
+* `CategoryTheory.Abelian.IsTorsionFreeClass P`: the statement that `P` is the torsion-free
+  class of some torsion theory on `C`.
 
 ## Main results
 
 * `CategoryTheory.Abelian.isTorsionClass_iff`: in a well-powered abelian category with
   coproducts, `P` is a torsion class if and only if it is closed under quotients, extensions,
   and coproducts (a theorem of Dickson).
+* `CategoryTheory.Abelian.isTorsionFreeClass_iff`: dually, in a well-copowered abelian
+  category with products, `P` is a torsion-free class if and only if it is closed under
+  subobjects, extensions, and products.
 
 ## References
 
@@ -96,6 +104,40 @@ lemma rightOrthogonal_leftOrthogonal_rightOrthogonal :
   le_antisymm (antitone_rightOrthogonal (le_rightOrthogonal_leftOrthogonal P))
     (le_leftOrthogonal_rightOrthogonal P.rightOrthogonal)
 
+lemma rightOrthogonal_op : P.op.rightOrthogonal = P.leftOrthogonal.op := by
+  ext X
+  constructor
+  · intro h Z g hZ
+    simpa using congrArg Quiver.Hom.unop (h g.op hZ)
+  · intro h Y f hY
+    simpa using congrArg Quiver.Hom.op (h f.unop hY)
+
+lemma leftOrthogonal_op : P.op.leftOrthogonal = P.rightOrthogonal.op := by
+  ext X
+  constructor
+  · intro h Z g hZ
+    simpa using congrArg Quiver.Hom.unop (h g.op hZ)
+  · intro h Y f hY
+    simpa using congrArg Quiver.Hom.op (h f.unop hY)
+
+lemma rightOrthogonal_unop (R : ObjectProperty Cᵒᵖ) :
+    R.unop.rightOrthogonal = R.leftOrthogonal.unop := by
+  ext X
+  constructor
+  · intro h Y g hY
+    simpa using congrArg Quiver.Hom.op (h g.unop hY)
+  · intro h W f hW
+    simpa using congrArg Quiver.Hom.unop (h f.op hW)
+
+lemma leftOrthogonal_unop (R : ObjectProperty Cᵒᵖ) :
+    R.unop.leftOrthogonal = R.rightOrthogonal.unop := by
+  ext X
+  constructor
+  · intro h Y g hY
+    simpa using congrArg Quiver.Hom.op (h g.unop hY)
+  · intro h W f hW
+    simpa using congrArg Quiver.Hom.unop (h f.op hW)
+
 end Orthogonal
 
 /-- The left orthogonal of a property of objects is closed under quotients. -/
@@ -150,6 +192,20 @@ instance (P : ObjectProperty C) {J : Type u'} [Category.{v'} J] :
     intro j
     simp only [zero_comp]
     exact hX.prop_diag_obj j (f ≫ hX.π.app j) hY
+
+/-- A property of objects `P.op` is closed under quotients iff `P` is closed under
+subobjects, since epimorphisms in `Cᵒᵖ` correspond to monomorphisms in `C`. -/
+lemma isClosedUnderQuotients_op_iff (P : ObjectProperty C) :
+    P.op.IsClosedUnderQuotients ↔ P.IsClosedUnderSubobjects :=
+  ⟨fun h ↦ ⟨fun i _ hY ↦ h.prop_of_epi i.op hY⟩,
+    fun h ↦ ⟨fun f _ hA ↦ h.prop_of_mono f.unop hA⟩⟩
+
+/-- A property of objects `P.op` is closed under extensions iff `P` is, since a short
+complex in `Cᵒᵖ` is short exact iff the corresponding short complex in `C` is. -/
+lemma isClosedUnderExtensions_op_iff (P : ObjectProperty C) :
+    P.op.IsClosedUnderExtensions ↔ P.IsClosedUnderExtensions :=
+  ⟨fun h ↦ ⟨fun hS h₁ h₃ ↦ h.prop_X₂_of_shortExact hS.op h₃ h₁⟩,
+    fun h ↦ ⟨fun hS h₁ h₃ ↦ h.prop_X₂_of_shortExact hS.unop h₃ h₁⟩⟩
 
 end ObjectProperty
 
@@ -292,6 +348,10 @@ structure TorsionTheory (T F : ObjectProperty C) : Prop where
 torsion theory. -/
 def IsTorsionClass (P : ObjectProperty C) : Prop := ∃ F, TorsionTheory P F
 
+/-- A property of objects is a torsion-free class if it is the torsion-free class of some
+torsion theory. -/
+def IsTorsionFreeClass (P : ObjectProperty C) : Prop := ∃ T, TorsionTheory T P
+
 namespace TorsionTheory
 
 variable {T F : ObjectProperty C}
@@ -323,6 +383,23 @@ lemma cogeneratedBy (P : ObjectProperty C) :
   torsion_eq_leftOrthogonal :=
     (ObjectProperty.leftOrthogonal_rightOrthogonal_leftOrthogonal P).symm
   free_eq_rightOrthogonal := rfl
+
+/-- A torsion theory on `C` induces a torsion theory on `Cᵒᵖ` with the roles of the
+torsion and torsion-free classes exchanged. -/
+lemma op (hTF : TorsionTheory T F) : TorsionTheory F.op T.op where
+  torsion_eq_leftOrthogonal := by
+    rw [ObjectProperty.leftOrthogonal_op, hTF.free_eq_rightOrthogonal]
+  free_eq_rightOrthogonal := by
+    rw [ObjectProperty.rightOrthogonal_op, hTF.torsion_eq_leftOrthogonal]
+
+/-- A torsion theory on `Cᵒᵖ` induces a torsion theory on `C` with the roles of the
+torsion and torsion-free classes exchanged. -/
+lemma unop {T F : ObjectProperty Cᵒᵖ} (hTF : TorsionTheory T F) :
+    TorsionTheory F.unop T.unop where
+  torsion_eq_leftOrthogonal := by
+    rw [ObjectProperty.leftOrthogonal_unop, hTF.free_eq_rightOrthogonal]
+  free_eq_rightOrthogonal := by
+    rw [ObjectProperty.rightOrthogonal_unop, hTF.torsion_eq_leftOrthogonal]
 
 /-- The torsion class of a torsion theory is closed under quotients. -/
 lemma torsion_isClosedUnderQuotients (hTF : TorsionTheory T F) : T.IsClosedUnderQuotients :=
@@ -366,6 +443,27 @@ theorem isTorsionClass_iff (P : ObjectProperty C)
   exact ⟨P.rightOrthogonal,
     { torsion_eq_leftOrthogonal := (rightOrthogonal_leftOrthogonal_eq_self P).symm
       free_eq_rightOrthogonal := rfl }⟩
+
+lemma isTorsionFreeClass_iff_isTorsionClass_op (P : ObjectProperty C) :
+    IsTorsionFreeClass P ↔ IsTorsionClass P.op :=
+  ⟨fun ⟨T, hTP⟩ ↦ ⟨T.op, hTP.op⟩, fun ⟨Q, hQ⟩ ↦ ⟨Q.unop, hQ.unop⟩⟩
+
+/-- In a well-copowered abelian category with products, a property of objects `P` is a
+torsion-free class if and only if it is closed under subobjects, extensions, and products.
+This is the dual of `isTorsionClass_iff`, obtained by transporting it through the
+opposite category. -/
+theorem isTorsionFreeClass_iff (P : ObjectProperty C)
+    [LocallySmall.{w} C] [WellPowered.{w} Cᵒᵖ] [HasProducts.{w} C] :
+    IsTorsionFreeClass P ↔
+      P.IsClosedUnderSubobjects ∧ P.IsClosedUnderExtensions ∧
+        ∀ J : Type w, P.IsClosedUnderLimitsOfShape (Discrete J) :=
+  (isTorsionFreeClass_iff_isTorsionClass_op P).trans <|
+    (isTorsionClass_iff P.op).trans <|
+      and_congr (ObjectProperty.isClosedUnderQuotients_op_iff P) <|
+        and_congr (ObjectProperty.isClosedUnderExtensions_op_iff P) <|
+          forall_congr' fun J ↦
+            ((P.isClosedUnderLimitsOfShape_iff_op (Discrete J)).trans
+              (P.op.isClosedUnderColimitsOfShape_iff_of_equivalence (Discrete.opposite J))).symm
 
 end Abelian
 
