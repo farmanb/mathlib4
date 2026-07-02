@@ -195,6 +195,7 @@ instance (P : ObjectProperty C) {J : Type u'} [Category.{v'} J] :
 
 /-- A property of objects `P.op` is closed under quotients iff `P` is closed under
 subobjects, since epimorphisms in `Cᵒᵖ` correspond to monomorphisms in `C`. -/
+omit [Abelian C] in
 lemma isClosedUnderQuotients_op_iff (P : ObjectProperty C) :
     P.op.IsClosedUnderQuotients ↔ P.IsClosedUnderSubobjects :=
   ⟨fun h ↦ ⟨fun i _ hY ↦ h.prop_of_epi i.op hY⟩,
