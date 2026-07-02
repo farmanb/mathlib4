@@ -108,9 +108,12 @@ instance (P : ObjectProperty C) : P.leftOrthogonal.IsClosedUnderExtensions where
   prop_X₂_of_shortExact := by
     intro s hs hX₁ hX₃ Z k hZ
     let t : CokernelCofork s.f := CokernelCofork.ofπ k (hX₁ (s.f ≫ k) hZ)
-    have hl : hs.gIsCokernel.desc t = 0 := hX₃ _ hZ
-    have hfac : s.g ≫ hs.gIsCokernel.desc t = k := hs.gIsCokernel.fac t WalkingParallelPair.one
-    simp [← hfac, hl, comp_zero]
+    -- the type ascription on `l` matters: it puts the morphism at type `s.X₃ ⟶ Z` rather
+    -- than the definitionally equal `(CokernelCofork.ofπ s.g _).pt ⟶ t.pt`
+    let l : s.X₃ ⟶ Z := hs.gIsCokernel.desc t
+    have hl : l = 0 := hX₃ l hZ
+    have hfac : s.g ≫ l = k := hs.gIsCokernel.fac t WalkingParallelPair.one
+    simp [← hfac, hl]
 
 /-- The left orthogonal of a property of objects is closed under colimits of any shape. -/
 instance (P : ObjectProperty C) {J : Type u'} [Category.{v'} J] :
