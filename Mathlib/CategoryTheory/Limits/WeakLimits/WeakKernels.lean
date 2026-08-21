@@ -12,7 +12,7 @@ public import Mathlib.CategoryTheory.Preadditive.Basic
 /-!
 # Weak kernels
 
-These are weak equalizes for functors of the form `ParallelPair f 0`.
+These are weak equalizers for functors of the form `parallelPair f 0`.
 
 If the category is preadditive, then weak equalizers exist if and only if weak kernels exist.
 (See `hasWeakEqualizer_of_hasWeakKernel` and `hasWeakKernel_of_hasWeakEqualizer`.)
@@ -31,7 +31,7 @@ variable {C : Type*} [Category* C]
 
 namespace CategoryTheory.Limits
 
-variable [HasZeroMorphisms C] {X Y : C} (f g : X ⟶ Y)
+variable [HasZeroMorphisms C] {X Y : C} (f : X ⟶ Y)
 
 /-- A morphism `f` has a weak kernel if the functor `ParallelPair f 0` has a weak limit. -/
 abbrev HasWeakKernel : Prop :=
